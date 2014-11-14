@@ -7,32 +7,45 @@ def login(username = nil, password = nil)
   @weibo.username = username if username
   @weibo.password = password if password
   if @weibo.login 
-    @weibo.load_status 
-  else
-    puts("登录失败")
+    opt = @weibo.load_status
+    search(opt) if opt
   end
 end
 
 def set_delay(_d)
-  @weibo.delay = _d 
+  @weibo.delay_times = _d 
 end
 
-def search(keyword, page = nil)
-  time_now = Time.now
+def search(options)
+  if options.is_a? Hash
+    keyword = options[:keyword]
+    time_now = Time.parse(options[:starttime]) + 3.hours
+    page = options[:page]
+  else  
+    keyword = options
+    page = 1
+    time_now = Time.now
+  end
   while true
     start_time = (time_now - 3.hours).strftime("%F-%H")
     end_time = time_now.strftime("%F-%H")
-    @weibo.search(keyword: keyword, page: page || 1, starttime: start_time, endtime: end_time)
+    @weibo.search(keyword: keyword,page: page , starttime: start_time, endtime: end_time)
     time_now -= 3.hours
+    page = 1
   end
+end
+
+def continue_search
+  search(@weibo.search_options)
 end
 
 puts "
 # ==============================================
 #
 #       登陆      login username, password
-#       搜索      search keyword[, page]
+#       搜索      search keyword | options
 #       设置间隔  set_delay 3..6(default)
+#       导出      export 
 #       退出      ctrl + c[d] or exit!
 #
 # ==============================================

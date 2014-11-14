@@ -68,7 +68,6 @@ module WeiboUtils
           result[:weibos] += get_fields(weibos_pice, '.search_feed .feed_lists') {|weibo_pice| get_weibo(weibo_pice) }
           break unless get_field(weibos_pice, ".W_pages").text.try('include?',"下一页")
           save_status(options)
-          sleep(rand(@delay))
         end
       rescue Exception => e
         save_status(options)

@@ -15,12 +15,12 @@ class WeiboCrawl
   include WeiboUtils::Search
   include WeiboUtils::Proxy
 
-  attr_accessor :logger, :username, :password, :delay
+  attr_accessor :logger, :username, :password, :delay_times, :search_options
 
   def initialize(args = nil)
     @logger = Logger.new(STDOUT)
     @broken_paths = []
-    @delay = 3..6
+    @delay_times = 3..6
     @username = "gwksgujy0@sina.cn"
     @password = "563646018505"
     init_pager
@@ -35,6 +35,10 @@ class WeiboCrawl
     @weibos_spider
   end
 
+  def delay
+    sleep(rand(@delay_times))
+  end
+
   def load_status
     Dir.mkdir("tmp/search_status/") unless Dir.exist?("tmp/search_status/")
     options = []
@@ -45,12 +49,9 @@ class WeiboCrawl
       options << opt
       puts "  #{idx + 1}) #{opt[:keyword]} 从#{opt[:starttime]}起的第#{opt[:page] || 1}页"
     end
-    puts "请输入:"
+    print "请输入: " if status_files.present?
     _input = gets
-    if _input.present?
-      opt = options[_input.to_i - 1]
-      search(opt) if opt.present?
-    end
+    opt = options[_input.to_i - 1] if _input.present?
   end
 end
 

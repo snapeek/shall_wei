@@ -2,7 +2,7 @@ module WeiboUtils
   module Hacks
 
     def get_with_login(url, is_ajax = false)
-      sleep(5)
+      delay
       page = @weibos_spider.get(url)
       if is_ajax
         # TODO: Ajax things
@@ -14,7 +14,7 @@ module WeiboUtils
       end
     rescue SystemExit, Interrupt
       logger.fatal("SystemExit && Interrupt")
-      puts "确定要退出吗?(y/n)"
+      print "确定要退出吗?(y/n) "
       exit! if gets.include?('y')
     rescue Exception => e
       binding.pry
@@ -164,7 +164,7 @@ module WeiboUtils
     end
 
     def rnd
-      rand(10000000000000)
+      Time.now.to_i * 1000 + rand(1000)
     end
 
     def set_proxy
@@ -214,7 +214,7 @@ module WeiboUtils
       if captcha_pice = get_script_html(page, 'pl_common_sassfilter')
         save_x_captcha
         page_uri = page.uri.to_s
-        ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{Time.now.to_i * 1000}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
+        ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
         ret = JSON.parse(ret.body)
         if ret["code"] == "100000"
           return @weibos_spider.get(page_uri)
