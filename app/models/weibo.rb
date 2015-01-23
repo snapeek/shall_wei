@@ -34,6 +34,8 @@ class Weibo
   scope :with_reposts, ->{ where(:hpost => nil).and(:creposts_count.gte => 1).desc(:creposts_count)}
   scope :hot, ->{ where(:reposts_count.gt => 200).desc(:reposts_count)}
 
+  # index({ mid: 1 })
+
 
   validates :created_at, presence: true
   def self.woms(is_all = false)

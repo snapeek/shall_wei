@@ -19,6 +19,9 @@ class Account
 
   scope :can_used, ->{ where(:on_crawl => false)}
 
+  index({ username: 1, password: 1, last_use: 1}, { unique: true })
+
+
   def self.get_one
     where(:on_crawl => true).all.each do |ac|
       if Time.now.to_i - ac.last_use > 120

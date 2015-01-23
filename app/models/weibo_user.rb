@@ -48,6 +48,8 @@ class WeiboUser
   scope :brands, ->{ where(:verified_type => 1) }
   scope :medias, ->{ where(:verified_type => 2) }
 
+  index({ wid: 1 }, { unique: true })
+
   def self.group_by_location
     criteria.group_by{|a| a.location.to_s.split(' ')[0]}
   end
