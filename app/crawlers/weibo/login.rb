@@ -133,7 +133,7 @@ module WeiboUtils
       def input_captcha(cap)
         puts "请输入验证码:"
         acount = 0
-        if Time.now - @account.last_use > 10.minutes
+        if((Time.now - @account.last_use) > 10.minutes)
           @account.cpc_count = 0
         else
           @account.cpc_count +=1
