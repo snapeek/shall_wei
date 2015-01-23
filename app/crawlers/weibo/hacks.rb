@@ -280,6 +280,7 @@ module WeiboUtils
         page
       else
         logger.info("> 访问出错: 账号被登出,正在重试.")
+        binding.pry
         relogin 
         page = @weibos_spider.get(url)
         page = ensure_not_relogin_page(page)
