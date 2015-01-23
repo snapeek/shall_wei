@@ -54,8 +54,8 @@ module WeiboUtils
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
       rescue Exception => e
-        # binding.pry
-        @account.destroy
+        binding.pry
+        # @account.destroy
         logger.info "> 登录失败"
         logger.info e.backtrace.slice(0..5).join('\n')
       end
