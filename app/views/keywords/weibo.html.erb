@@ -1,0 +1,26 @@
+<h1>热门微博</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>发帖人</th>
+      <th width="40%">内容</th>
+      <th>转发次数</th>
+      <th>传播路径</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @weibos.each do |weibo| %>
+      <tr>
+        <td><%= link_to(weibo.weibo_user.name, weibo.weibo_user.get_url) %> </td>
+        <td><%= weibo.content  %></td>
+        <td><%= link_to(weibo.reposts_count, "http://weibo.com#{weibo.reposts_url}")  %></td>
+        <td><%= "点击采集传播路径" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+

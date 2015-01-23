@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= content_for?(:title) ? yield(:title) : "Shall Wei" %></title>
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Shall Wei" %>">
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <%= csrf_meta_tags %>
+    <%= yield :header %>
+  </head>
+  <body>
+    <header>
+      <%= render 'layouts/navigation' %>
+    </header>
+    <main role="main">
+      <%= render 'layouts/messages' %>
+      <div class="panel panel-default">
+        <div class="panel-body">
+          当前可用账号数量为 <%= @status[:ac] %> 个, 其中 <%= @status[:acc] %> 正在使用, 可用代理数量为 <%= @status[:pc] %> 个.
+        </div>
+      </div>
+
+       <%= yield %>
+    </main>
+  </body>
+</html>

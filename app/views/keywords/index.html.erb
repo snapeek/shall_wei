@@ -1,0 +1,31 @@
+<h1>关键词列表</h1>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>关键词</th>
+      <th>开始时间</th>
+      <th>结束时间</th>
+      <th colspan="5"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @keywords.each do |keyword| %>
+      <tr>
+        <td><%= keyword.content %></td>
+        <td><%= st(keyword.starttime) %></td>
+        <td><%= st(keyword.endtime) %></td>
+        <td><%= link_to '微博搜索结果', keyword %></td>
+        <td><%= link_to '热门微博(传播路径)', action: :weibo, id: keyword %></td>
+        <td><%= link_to '百度新闻', action: :weibo, id: keyword %></td>
+        <td><%= link_to '品牌媒体关注', action: :weibo, id: keyword %></td>
+        <td><%= link_to '删除', keyword, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Keyword', new_keyword_path %>

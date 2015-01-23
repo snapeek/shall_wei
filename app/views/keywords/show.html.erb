@@ -1,0 +1,43 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>关键字:</strong>
+  <%= @keyword.content %>
+</p>
+
+<p>
+  <strong>从:</strong>
+  <%= st(@keyword.starttime) %>
+  <strong>到:</strong>
+  <%= st(@keyword.endtime) %>
+  <%= link_to("开始抓取", controller: "keywords", action: "search_day_count", id: @keyword) %>
+</p>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>日期</th>
+      <th>微博数量</th>
+      <th>已抓取数量</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @keyword.day_count.each do |k, v| %>
+      <tr>
+        <td><%= k %></td>
+        <td><%= v %></td>
+        <% if kb = @keyword.get_kiber(k, v) %>
+        <td><%= kb.now_count %></td>
+        <% else %>
+        <td> <%= link_to("开始抓取", controller: "keywords", action: "new_search", :starttime => k, :all_count => v )%> </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+
+<%= link_to 'Edit', edit_keyword_path(@keyword) %> |
+<%= link_to 'Back', keywords_path %>

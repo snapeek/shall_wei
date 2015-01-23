@@ -1,0 +1,26 @@
+<!-- content for head -->
+<% content_for :header do %>
+  <meta http-equiv="refresh" content="12">
+<% end %>
+
+<h1>待输入验证码列表</h1>
+    <div class="row">
+    <% @captchas.each do |captcha| %>
+      <div class="col-sm-6 col-md-2">
+        <%= form_for captcha do |f| %>
+          <fieldset>
+            <div class="form-group">
+              <img src="/captchas/<%= captcha.id %>.png">
+            </div>
+            <div class="form-group">
+              <label for="disabledTextInput">请输入验证码:</label>
+              <%= f.text_field :code, :class => "form-control" %>
+            </div>
+            <%= link_to '删除', captcha, method: :delete, data: { confirm: '确定删除吗?' }, :class => "btn btn-default" %>
+            <%= f.submit "确定", :class => "btn btn-primary" %>
+          </fieldset>
+        <% end %>
+      </div>
+    <% end %>
+    </div>
+<br>

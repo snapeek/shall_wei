@@ -1,0 +1,17 @@
+<%= form_for(@kiber) do |f| %>
+  <% if @kiber.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@kiber.errors.count, "error") %> prohibited this kiber from being saved:</h2>
+
+      <ul>
+      <% @kiber.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

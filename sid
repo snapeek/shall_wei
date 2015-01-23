@@ -1,0 +1,62 @@
+#!/bin/sh -e
+COMMAND="$1"
+ENVIRONMENT="$2"
+
+# verify parameters
+case $COMMAND in
+start|stop|restart)
+  ;;
+*)
+  echo "The command $COMMAND is not supported."
+  echo "Supported commands include: start, stop, and restart"
+  exit
+  ;;
+esac
+case $ENVIRONMENT in
+production|staging|development|demo)
+  ;;
+*)
+  echo "The environment $ENVIRONMENT is not supported."
+  echo "Supported environments include: production, staging, development, and demo."
+  exit
+  ;;
+esac
+
+# cd ~/projects/Quill
+
+# check whether the pid file exists
+pid_file="tmp/pids/sidekiq.pid"
+if [ -f "$pid_file" ]; then
+  pid_file_exist=1
+else
+  pid_file_exist=0
+fi
+
+# execute the command
+case $COMMAND in
+start)
+  if [ $pid_file_exist = 1 ]; then
+    echo "A sidekiq pid file already exists at tmp/pids."
+    echo "You need to first stop the sidekiq process, or remove the pid file if you can confirm no sidekiq process is running."
+    exit
+  fi
+  bundle exec sidekiq -C config/sidekiq.yml -q shallwei_$ENVIRONMENT -e $ENVIRONMENT -d
+  ;;
+stop)
+  if [ $pid_file_exist = 0 ]; then
+    echo "Cannot find sidekie.pid at tmp/pids."
+    echo "No sidekiq process to stop"
+    exit
+  fi
+  bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 60
+  ;;
+restart)
+  if [ $pid_file_exist = 0 ]; then
+    echo "Cannot find sidekie.pid at tmp/pids."
+    echo "No sidekiq process to stop"
+  else
+    bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 60
+  fi
+  bundle exec sidekiq -C config/sidekiq.yml -q shallwei_$ENVIRONMENT -e $ENVIRONMENT -d
+  ;;
+esac
