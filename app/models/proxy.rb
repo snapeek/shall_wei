@@ -71,6 +71,7 @@ class Proxy
 
   def confirm
     http_client = Mechanize.new
+    agent.open_timeout = 5 
     http_client.read_timeout = 5
     # proxy = URI.parse("http://183.221.186.116:8123")
     http_client.set_proxy(ip, port)
@@ -91,7 +92,7 @@ class Proxy
     if is_confirm
       return true
     else
-      self.set_delete
+      self.destroy
     end
     is_confirm
   end
