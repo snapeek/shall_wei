@@ -138,7 +138,7 @@ module WeiboUtils
         else
           @account.cpc_count +=1
         end
-        change_account if @account.cpc > 10
+        change_account if @account.cpc_count > 10
         while acount < 100
           sleep(10)
           acount += 1
