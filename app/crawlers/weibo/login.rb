@@ -53,6 +53,9 @@ module WeiboUtils
           rescue_when_errno_is(result_json["errno"])
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
+      rescue Net::HTTP::Persistent::Error
+        delay
+        retry
       rescue Exception => e
         binding.pry
         # @account.destroy
@@ -148,6 +151,7 @@ module WeiboUtils
             break
           end
         end
+        binding.pry
         cap.code
       end
 
