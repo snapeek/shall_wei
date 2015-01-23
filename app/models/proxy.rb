@@ -70,7 +70,8 @@ class Proxy
   end
 
   def confirm
-    http_client = Mechanize.new(:timeout => 5)
+    http_client = Mechanize.new
+    http_client.read_timeout = 5
     # proxy = URI.parse("http://183.221.186.116:8123")
     http_client.set_proxy(ip, port)
     http_client.user_agent_alias = 'Mac Safari'
