@@ -5,8 +5,14 @@ module WeiboUtils
     end
     
     module InstanceMethods
-      def get_proxy
-        
+      def set_proxy
+        prx = @account.proxy
+        if !( prx && prx.confirm)
+          prx = ::Proxy.get_one
+          @account.proxy = prx
+          @account.save
+        end
+        @weibos_spider.set_proxy(prx.ip, prx.port)
       end
     end
     

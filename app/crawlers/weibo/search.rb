@@ -17,6 +17,9 @@ module WeiboUtils
             options_buffer += "ori=custom::"
           end
         end
+        if options[:ori]
+          options_buffer += "&scope=ori"
+        end        
         if options[:xsort]
           options_buffer += "&xsort=hot"
         end
@@ -53,27 +56,36 @@ module WeiboUtils
           # :city         => city,
           # :filter_sources => filter_sources
         })
+        @kiber = Kiber.find(options[:kid]) if options[:kid]
+        @keyword = @kiber.keyword
         result = {:weibos => []}
         params = biuld_params(options)
-        logger.info("当前关键字为#{options[:keyword]}, 其余参数为 #{params}")
+        logger.info("> 搜索结果: 当前关键字为#{options[:keyword]}, 其余参数为 #{params}")
+        options[:now_count] = 0
         options[:page].upto(50) do |current_page|
           options[:page] = current_page
-          logger.info ">搜索结果: 第 #{current_page} 页,"
+          result[:weibos].clear
+          logger.info "> 搜索结果: 第 #{current_page} 页,"
           search_page = get_with_login("http://s.weibo.com/wb/#{options[:keyword]}?page=#{current_page}#{params}&Refer=g")
           # weibos_pice = get_script_html(search_page, "pl_weibo_direct")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
-          result[:total_num] ||= get_field(weibos_pice, ".search_num"){|e| e.text.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          result[:total_num] ||= get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          # options[:total_num] ||= result[:total_num]
           break if result[:total_num].to_i == 0
-         
-          result[:weibos] += get_fields(weibos_pice, '.search_feed .feed_lists') {|weibo_pice| get_weibo(weibo_pice) }
-          break unless get_field(weibos_pice, ".W_pages").text.try('include?',"下一页")
+          # result[:weibos] += get_fields(weibos_pice, '.search_feed feed_lists') {|weibo_pice| get_weibo(weibo_pice) }
+          result[:weibos] += get_fields(weibos_pice, '.search_feed>div>div>div.S_bg2') {|weibo_pice| get_weibo(weibo_pice) }
+          options[:weibo_now_count] = result[:weibos].count
           save_status(options)
+          save_weibos(result[:weibos])
+          break unless get_field(weibos_pice, ".W_pages").text.try('include?',"下一页")
         end
-      rescue Exception => e
+      rescue Exception => err
+        # binding.pry
+        logger.fatal("> 搜索出错:")
+        logger.fatal(err)
+        logger.fatal(err.backtrace.slice(0,5).join("\n"))
         save_status(options)
-        binding.pry
       ensure
-        save_weibos(result[:weibos])
         return result
       end
       
@@ -85,13 +97,33 @@ module WeiboUtils
 
       def save_status(options)
         @search_options = options
-        Dir.mkdir("tmp/search_status/") unless Dir.exist?("tmp/search_status/")
-        File.open("tmp/search_status/#{options[:keyword]}.yaml", "wb") {|f| YAML.dump(@search_options, f) }
+        return unless @kiber
+        @kiber.page = options[:page]
+        # @kiber.all_count = options[:total_num]
+        @kiber.now_count += options[:weibo_now_count]
+        @kiber.status = @kiber.status | 2
+        @kiber.save
+        # Dir.mkdir("tmp/search_status/") unless Dir.exist?("tmp/search_status/")
+        # File.open("tmp/search_status/#{options[:keyword]}.yaml", "wb") {|f| YAML.dump(@search_options, f) }
       end
 
       def save_weibos(weibos)
         weibos.each do |w|
-          Weibo.create(w)
+          u = WeiboUser.find_or_create_by(:wid => w[:uid])
+          u.crawl_status = 1 unless u.crawl_status > 0 
+          u.name ||= w[:user_name]
+          ww = @keyword.weibos.find_or_create_by(:mid => w[:mid])
+          ww.update(w)
+          u.weibos << ww
+          @keyword.weibos << ww
+          @keyword.save
+          u.save
+          if u.crawl_status & 2 != 2
+            userinfo(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的用户信息采集错误.")
+          end
+          if u.crawl_status & 4 != 4
+            follower(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的关注信息采集错误. ")
+          end
         end
       end
 
@@ -101,21 +133,16 @@ module WeiboUtils
 
       def get_weibo(weibo_pice)
         w = {}
-
         w[:mid]           = get_field(weibo_pice, '.feed_from .W_textb', 'suda-data').match(/:(\d+)/).try('[]', 1)
         w[:content]       = get_field(weibo_pice, '.comment_txt'){ |e| e.text.gsub(/[\t\n]/,'')}
         w[:user_name]     = get_field(weibo_pice, '.face>a', 'title')
         w[:created_at]    = get_field(weibo_pice, '.feed_from>.W_textb'){|e| Time.parse(e).to_i rescue 0}
         # w[:source]        = get_field(weibo_pice, '.info>a'){|e| e.text}
         w[:uid]           = get_field(weibo_pice, '.face>a>img', 'usercard'){|e| e.match(/\d{6,13}/).to_s }
+        # w[:name]          = get_field(weibo_pice, '.feed_content>a.W_texta', 'nick-name')
         # w[:mid]           ||= get_field(weibo_pice, '.content>p.info>span>a', 'action-data'){|e| e.match(/mid=(\d*)/)[1]}
-        # w[:reposts_count] = get_field(weibo_pice, '.info>span'){|e| e.text.to_s.match(/转发\((\d+)/)[1]}
-        # if (_wc = get_field(weibo_pice, '.comment .info>span a:eq(1)')).present?
-        #   w[:content]     = get_field(weibo_pice, '.comment dt em'){|e| e.to_s.gsub(/<[^>]*>/, '')}
-        #   w[:reposts_url] = get_attr(_wc, 'href')
-        #   w[:mid]         = str_to_mid(w[:reposts_url].match(/\/(\w+)\?/)[1])
-        #   w[:uid]         = w[:reposts_url].match(/\d{6,13}/).to_s
-        # end
+        w[:reposts_count] = get_field(weibo_pice, '.feed_action_info'){|e| e.text.to_s.match(/转发(\d+)/).try("[]", 1).to_i}
+        w[:reposts_url]   = "/#{w[:uid]}/#{mid_to_str(w[:mid])}?type=repost"
       ensure
         return w
       end    

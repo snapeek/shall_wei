@@ -3,21 +3,44 @@ module WeiboUtils
 
     def get_with_login(url, is_ajax = false)
       delay
+      ensure_use_count
       page = @weibos_spider.get(url)
-      if is_ajax
-        # TODO: Ajax things
-      else
-        page = ensure_not_captcha_page(page)
-        page = ensure_not_relogin_page(page)
-        page = ensure_logined_page(page, url)
-        raise "UserBlocked" if is_block_page?(page)
-      end
+
+      return page if is_ajax && page.is_a?(Mechanize::File)
+
+      page = ensure_not_captcha_page(page)
+      page = ensure_not_relogin_page(page)
+      page = ensure_logined_page(page, url)
+      raise "UserBlocked" if is_block_page?(page)
+    rescue SystemExit, Interrupt
+      ensure_use_logout
+      logger.fatal("SystemExit && Interrupt")
+      print "确定要退出吗?(y/n) "
+      exit! if gets.include?('y')
+    rescue Net::HTTP::Persistent::Error
+      delay
+      retry
+    rescue Exception => e
+      ensure_use_logout
+      logger.fatal("HtmlError:")
+      # binding.pry
+      logger.fatal(page.search("body").text)
+    ensure
+      return page
+    end
+
+    def jget(url)
+      delay
+      page = @weibos_spider.get(url)
     rescue SystemExit, Interrupt
       logger.fatal("SystemExit && Interrupt")
       print "确定要退出吗?(y/n) "
       exit! if gets.include?('y')
+    rescue Net::HTTP::Persistent::Error
+      delay
+      retry      
     rescue Exception => e
-      binding.pry
+      logger.fatal("HtmlError:")
       logger.fatal(page.search("body").text)
     ensure
       return page
@@ -25,9 +48,11 @@ module WeiboUtils
 
     def get_attr(node, attr_name)
       # logger.info "> 开始解析: #{attr_name}"
+      return "" unless node.present?
       begin
         ret = node.attr(attr_name).to_s
       rescue Exception => err
+        # binding.pry
         logger.fatal("> 提取出错: `#{attr_name}`")
         logger.fatal(err)
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
@@ -84,7 +109,11 @@ module WeiboUtils
     def get_script_html(page, ns)
       scripts = page.search("script")
       scripts = scripts.map{|script| begin JSON.parse(script.child.to_s.match(/\{[\w\W]*\}/).to_s) rescue "" end}
-      pice = scripts.select{|script| script["ns"] == ns || script["pid"] == ns || script["domid"] == ns}.first
+      if ns.is_a? Regexp
+        pice = scripts.select{|script| script["ns"] =~ ns || script["pid"] =~ ns || script["domid"] =~ ns}.first
+      else
+        pice = scripts.select{|script| script["ns"] == ns || script["pid"] == ns || script["domid"] == ns}.first
+      end
 
       return Nokogiri.HTML(pice["html"]) if pice
     end
@@ -98,7 +127,7 @@ module WeiboUtils
       joos = page.search("script")
       joo = joos.select{|joo| joo.to_s.include?("var $CONFIG = {};")}.first.to_s
       if attr_name.present?
-        return joo.match(/\$CONFIG\[\'#{attr_name}\'\][\s=]*\'([\S]*)\'/).try("[]", 1)
+        return joo.match(/\$CONFIG\[\'#{attr_name}\'\][\s=\']*([\w]*)/).try("[]", 1)
       else
         joo
       end
@@ -167,12 +196,6 @@ module WeiboUtils
       Time.now.to_i * 1000 + rand(1000)
     end
 
-    def set_proxy
-      if @weibo_proxy = self.get_proxy 
-        @weibos_spider.set_proxy(@weibo_proxy.ip, @weibo_proxy.port)
-      end
-    end
-
     def str62keys
     [
       "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
@@ -185,6 +208,32 @@ module WeiboUtils
 
     def is_block_page?(page)
       page.uri.to_s.include?("userblock")
+    end
+
+    def ensure_use_count
+      # prx = @account.proxy
+      if @account.use_count > 1000
+        @account.use_count = 0
+        @account.last_use = Time.now.to_i
+        @account.on_crawl = false
+        @account.save
+        change_account
+        @account.use_count = 0
+        set_proxy
+        login
+      end
+      prx = @account.proxy
+      set_proxy unless prx 
+      prx.last_use = @account.last_use   = Time.now.to_i
+      @account.use_count += 1
+      @account.on_crawl = true
+      @account.save
+      prx.save
+    end
+
+    def ensure_use_logout
+      @account.on_crawl =false
+      @account.save
     end
 
     def ensure_not_relogin_page(page)
@@ -203,11 +252,12 @@ module WeiboUtils
 
     def save_x_captcha
       pcurl = "http://s.weibo.com/ajax/pincode/pin?type=sass&amp;ts=#{Time.now.to_i}"
-      file_name = @username.sub('@', '_')
-      @weibos_spider.get(pcurl).save_as("./tmp/captchas/#{file_name}.png")
-      @x_captcha = input_captcha
+      cap = Captcha.create
+      file_name = cap.id.to_s
+      @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
+      @x_captcha = input_captcha(cap)
     ensure
-      File.delete("./tmp/captchas/#{file_name}.png") if File.exist?("./tmp/captchas/#{file_name}.png")
+      File.delete("./public/captchas/#{file_name}.png") if File.exist?("./public/captchas/#{file_name}.png")
     end
 
     def ensure_not_captcha_page(page)

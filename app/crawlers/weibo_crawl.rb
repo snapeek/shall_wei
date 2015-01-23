@@ -13,16 +13,22 @@ class WeiboCrawl
   include WeiboUtils::Hacks
   include WeiboUtils::Login
   include WeiboUtils::Search
+  include WeiboUtils::DayCount
+  include WeiboUtils::Brand
   include WeiboUtils::Proxy
+  include WeiboUtils::UserInfo
+  include WeiboUtils::Repost
 
-  attr_accessor :logger, :username, :password, :delay_times, :search_options
+  attr_accessor :logger, :username, :password, :delay_times, :search_options, :account
 
   def initialize(args = nil)
     @logger = Logger.new(STDOUT)
+    # @logger = Logger.new("log/weibo_crawl.log", 'daily')
     @broken_paths = []
-    @delay_times = 3..6
-    @username = "gwksgujy0@sina.cn"
-    @password = "563646018505"
+    @delay_times = 2..5
+    @account = Account.get_one
+    @username = @account.username # "gwksgujy0@sina.cn"
+    @password = @account.password # "563646018505"
     init_pager
   end
 
@@ -30,13 +36,16 @@ class WeiboCrawl
     @login_count ||= 0
     @login_count += 1
     @weibos_spider ||= Mechanize.new
-    @weibos_spider.user_agent_alias = 'Mac Safari'
+    @weibos_spider.user_agent_alias = 'Windows IE 9'
+    # @weibos_spider.user_agent_alias = 'Mac Safari'
     set_proxy
     @weibos_spider
   end
 
   def delay
-    sleep(rand(@delay_times))
+    tt = Time.now - Time.at(@account.last_use)
+    ts = rand(@delay_times)
+    sleep(ts - tt) if ts > tt
   end
 
   def load_status

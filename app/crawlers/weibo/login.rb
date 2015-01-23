@@ -47,14 +47,15 @@ module WeiboUtils
         result_json = JSON.parse(after_login_page.body.match(/\{[\w\W]*\}/).to_s)
         if result_json["result"]
           save_cookies
-          logger.info "> 登录成功: 通过账号密码登陆 #{@username}"
+          logger.info "> 登录成功: 通过账号密码登陆 #{username}"
         else
           delete_cookies
           rescue_when_errno_is(result_json["errno"])
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
       rescue Exception => e
-        binding.pry
+        # binding.pry
+        @account.destroy
         logger.info "> 登录失败"
         logger.info e.backtrace.slice(0..5).join('\n')
       end
@@ -109,20 +110,48 @@ module WeiboUtils
 
       def save_captcha
         pcurl = "http://login.sina.com.cn/cgi/pin.php?r=#{(rand * 100000000).floor}&s=0&p=#{@login_info["pcid"]}"
-        file_name = @username.sub('@', '_')
-        @weibos_spider.get(pcurl).save_as("./tmp/captchas/#{file_name}.png")
-        @login_data['door'] = input_captcha
+        cap = Captcha.create
+        file_name = cap.id.to_s
+        @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
+        @login_data['door'] = input_captcha(cap)
       ensure
-        File.delete("./tmp/captchas/#{file_name}.png") if File.exist?("./tmp/captchas/#{file_name}.png")
+        File.delete("./public/captchas/#{file_name}.png") if File.exist?("./public/captchas/#{file_name}.png")
       end
 
-      def input_captcha
+      # def input_captcha
+      #   puts "请输入验证码:"
+      #   door = gets 
+      #   door.gsub("\n", '')
+      # end
+
+      def change_account
+        @account = Account.get_one
+        username = @account.username
+        password = @account.password
+      end
+
+      def input_captcha(cap)
         puts "请输入验证码:"
-        door = gets 
-        door.gsub("\n", '')
+        acount = 0
+        if Time.now - @account.last_use > 10.minutes
+          @account.cpc_count = 0
+        else
+          @account.cpc_count +=1
+        end
+        change_account if @account.cpc > 10
+        while acount < 100
+          sleep(10)
+          acount += 1
+          cap.reload
+          if cap.code
+            cap.destroy
+            break
+          end
+        end
+        cap.code
       end
 
-      def encode_password(password = @password)
+      def encode_password
         login_data if @login_info.empty?
         # ----- wsse -----
         # weibo_login unless @servertime
@@ -140,7 +169,7 @@ module WeiboUtils
           
       end
 
-      def encode_username(username = @username)
+      def encode_username
         Base64.strict_encode64(username.sub("@","%40"))
       end
 
@@ -175,7 +204,6 @@ module WeiboUtils
       rescue
         false
       end
-
     end
     
     def self.included(receiver)
