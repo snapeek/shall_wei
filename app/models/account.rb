@@ -13,7 +13,7 @@ class Account
 
   field :on_crawl,              :type => Boolean, :default => false
 
-  field :cpc_count,             :type => Integer,  :default => 0
+  field :level,             :type => Integer,  :default => 0
 
   has_one :proxy
 
@@ -28,8 +28,9 @@ class Account
         ac.on_crawl = false
         ac.save
       end
+      ac.destroy if ac.level > 7
     end
-    ret = where(:on_crawl => false).order("last_use ASC").first
+    ret = where(:on_crawl => false).order("last_use ASC").order("level last_use ASC").first
     if ret.proxy
       return ret 
     else

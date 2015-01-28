@@ -14,6 +14,15 @@ module WeiboUtils
         end
         @weibos_spider.set_proxy(prx.ip, prx.port)
       end
+
+      def xproxy
+        prx = ::Proxy.get_one
+        logger.info("> 更换代理.")
+        @account.proxy.destroy
+        @account.proxy = prx
+        @account.save
+        @weibos_spider.set_proxy(prx.ip, prx.port)
+      end
     end
     
     def self.included(receiver)

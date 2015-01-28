@@ -27,10 +27,9 @@ class Proxy
       prxs = where(:is_deleted => false).order("last_use DESC")
     end
     while true
-      p "获取代理"
       prxs.each do |prx|
         next if prx.account
-        if prx.nil? || prx.confirm
+        if prx.confirm
           ret = prx
           break
         else
@@ -72,7 +71,8 @@ class Proxy
   def confirm
     http_client = Mechanize.new
     http_client.open_timeout = 5 
-    http_client.read_timeout = 5
+    http_client.read_timeout = 4
+    http_client.idle_timeout = 3
     # proxy = URI.parse("http://183.221.186.116:8123")
     http_client.set_proxy(ip, port)
     http_client.user_agent_alias = 'Mac Safari'

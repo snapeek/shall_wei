@@ -20,6 +20,9 @@ module WeiboUtils
     rescue Net::HTTP::Persistent::Error
       delay
       retry
+    rescue Errno::ECONNREFUSED
+      xproxy
+      retry
     rescue Exception => e
       ensure_use_logout
       logger.fatal("HtmlError:")
@@ -75,7 +78,7 @@ module WeiboUtils
       ret = attr_name ? get_attr(ret, attr_name) : ret
       ret = yield(ret) if block_given?
     rescue Exception => err
-      logger.fatal(">执行出错:")
+      logger.fatal("> 执行出错:")
       logger.fatal(err)
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
     ensure   
@@ -217,7 +220,7 @@ module WeiboUtils
         @account.last_use = Time.now.to_i
         @account.on_crawl = false
         @account.save
-        change_account
+        xaccount
         @account.use_count = 0
         set_proxy
         login
@@ -279,9 +282,13 @@ module WeiboUtils
       if get_config(page, "islogin").to_s == '1'
         page
       else
-        logger.info("> 访问出错: 账号被登出,正在重试.")
-        binding.pry
-        relogin 
+        logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
+        if @relogin_count > 5
+          xaccount
+        else
+          relogin
+          @relogin_count += 1 
+        end
         page = @weibos_spider.get(url)
         page = ensure_not_relogin_page(page)
       end

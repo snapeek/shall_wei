@@ -19,7 +19,7 @@ class WeiboSearchWorker
           xsort: false, 
           ori: true,
           kid: kid)
-        k.crdtime += 3.hours
+        k.crdtime += k.gap.hours
         k.page = 1
         break if k.crdtime > k.endtime
       end
