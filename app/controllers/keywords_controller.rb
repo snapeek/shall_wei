@@ -53,17 +53,18 @@ class KeywordsController < ApplicationController
   def new_search
     kid = "#{params[:starttime]}-#{params[:all_count]}"
     params[:starttime] = Time.parse(params[:starttime]).to_i
+    # if all_count < 1000 
     k = @keyword.kibers.create(
       starttime: params[:starttime],
       crdtime: params[:starttime],
-      endtime: params[:starttime] + 1.days,
+      endtime: params[:starttime] + 30.days,
       all_count: params[:all_count],
       kid: kid,
-      gap: 1
+      gap: 240
     )
     # binding.pry
     @keyword.save
-    # WeiboSearchWorker.perform_async k.id.to_s
+    WeiboSearchWorker.perform_async k.id.to_s
     respond_to do |format|
       if @keyword.save
         format.html { redirect_to @keyword, notice: '开始爬取!' }

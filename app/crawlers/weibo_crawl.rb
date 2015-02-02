@@ -26,6 +26,8 @@ class WeiboCrawl
     # @logger = Logger.new("log/weibo_crawl.log", 'daily')
     @broken_paths = []
     @delay_times = 2..5
+    @relogin_count = 0
+    @cpc_count = 0
     @account = Account.get_one
     @username = @account.username # "gwksgujy0@sina.cn"
     @password = @account.password # "563646018505"
@@ -35,7 +37,11 @@ class WeiboCrawl
   def init_pager
     @login_count ||= 0
     @login_count += 1
-    @weibos_spider ||= Mechanize.new
+    @weibos_spider ||= Mechanize.new do |m|
+      m.ssl_version, 
+      m.verify_mode = 'SSLv3', 
+      OpenSSL::SSL::VERIFY_NONE
+    end
     @weibos_spider.user_agent_alias = 'Windows IE 9'
     # @weibos_spider.user_agent_alias = 'Mac Safari'
     set_proxy

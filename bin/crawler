@@ -21,7 +21,7 @@ def set_delay(_d)
   @weibo.delay_times = _d 
 end
 
-def search(kid = "54ae87116b6172a006000000")
+def search(kid)
   if @weibo.login 
     k = Kiber.find(kid)
     while true
@@ -42,6 +42,11 @@ def search(kid = "54ae87116b6172a006000000")
     k.status = k.status | 4
     k.save
   end
+end
+
+def news(key_id)
+  k = Keyword.find(key_id)
+  @oops.crawl_news(k)
 end
 
 def continue_search

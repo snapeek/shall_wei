@@ -39,9 +39,8 @@ module WeiboUtils
           end
         end
       end
-
       def try_login
-        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)", login_data)
+        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", login_data)
         callback_url = login_page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
         after_login_page = @weibos_spider.get(callback_url)
         result_json = JSON.parse(after_login_page.body.match(/\{[\w\W]*\}/).to_s)
@@ -54,11 +53,11 @@ module WeiboUtils
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
       rescue Net::HTTP::Persistent::Error
+        xproxy
         delay
         retry
       rescue Exception => e
-        binding.pry
-        # @account.destroy
+        xaccount
         logger.info "> 登录失败"
         logger.info e.backtrace.slice(0..5).join('\n')
       end
@@ -97,16 +96,21 @@ module WeiboUtils
           'vsnf'=> '1', 
           'su'=> encode_username,
           'service'=> 'miniblog', 
+          'sr' => '1440*900',
+          'cdult' => '3',
+          'service'=> 'sso', 
           'servertime'=> @login_info["servertime"], 
           'nonce'=> @login_info["nonce"],
           'pwencode'=> 'rsa2', 
           'rsakv'=> @login_info["rsakv"] , 
           'sp'=> encode_password,
           'encoding'=> 'UTF-8', 
+          'domain'=>'sina.com.cn',
           'prelt'=> '115',
-          'returntype'=> 'META',
+          'returntype'=> 'MATA',
           'url'=> "http://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack"
         }
+
         save_captcha unless @login_info["pcid"].empty?
         @login_data
       end
@@ -118,6 +122,7 @@ module WeiboUtils
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
       ensure
+        cap.destroy
         File.delete("./public/captchas/#{file_name}.png") if File.exist?("./public/captchas/#{file_name}.png")
       end
 
@@ -127,31 +132,39 @@ module WeiboUtils
       #   door.gsub("\n", '')
       # end
 
-      def change_account
+      def xaccount
+        @account.level += 4
+        @account.save
+        cookies.clear
         @account = Account.get_one
+        logger.info("> 更换账号: #{@account.username}(#{@account.level}).")
         username = @account.username
         password = @account.password
+        @relogin_count = 0
       end
 
       def input_captcha(cap)
         puts "请输入验证码:"
-        acount = 0
+        reload_count = 0
         if((Time.now - @account.last_use).to_i > 10.minutes)
-          @account.cpc_count = 0
+          @cpc_count = 0
         else
-          @account.cpc_count +=1
+          @cpc_count += 1
         end
-        change_account if @account.cpc_count > 10
-        while acount < 100
-          sleep(10)
-          acount += 1
+        xaccount if @cpc_count > 5
+        while reload_count < 25
+          if reload_count < 10
+            sleep(5)
+          else
+            sleep(10)
+          end
+          reload_count += 1
           cap.reload
           if cap.code
             cap.destroy
             break
           end
         end
-        binding.pry
         cap.code
       end
 

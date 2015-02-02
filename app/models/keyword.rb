@@ -17,6 +17,13 @@ class Keyword
     kibers.where(:kid => "#{st}-#{ac}").first
   end
 
+  def all_to_csv
+    baidu_news_to_csv
+    day_count_to_csv
+    weibo_to_csv
+    repost_to_scv
+  end
+
   def baidu_news_to_csv
     CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime)}-#{Time.at(endtime)}.csv", "wb") do |csv|
       csv << ["标题", "摘要","地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
