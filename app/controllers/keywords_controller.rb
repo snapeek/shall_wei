@@ -60,7 +60,7 @@ class KeywordsController < ApplicationController
       endtime: params[:starttime] + 1.days,
       all_count: params[:all_count],
       kid: kid,
-      gap: 2
+      gap: 1
     )
     # binding.pry
     @keyword.save
