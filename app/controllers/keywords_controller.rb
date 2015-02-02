@@ -57,10 +57,10 @@ class KeywordsController < ApplicationController
     k = @keyword.kibers.create(
       starttime: params[:starttime],
       crdtime: params[:starttime],
-      endtime: params[:starttime] + 30.days,
+      endtime: params[:starttime] + 212.days,
       all_count: params[:all_count],
       kid: kid,
-      gap: 240
+      gap: 120
     )
     # binding.pry
     @keyword.save

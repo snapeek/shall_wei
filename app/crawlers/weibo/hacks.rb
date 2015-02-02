@@ -220,7 +220,7 @@ module WeiboUtils
         @account.last_use = Time.now.to_i
         @account.on_crawl = false
         @account.save
-        xaccount
+        xaccount(false)
         @account.use_count = 0
         set_proxy
         login

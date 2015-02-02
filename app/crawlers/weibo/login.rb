@@ -132,8 +132,8 @@ module WeiboUtils
       #   door.gsub("\n", '')
       # end
 
-      def xaccount
-        @account.level += 4
+      def xaccount(iso = true)
+        @account.level += 4 if iso
         @account.save
         cookies.clear
         @account = Account.get_one
