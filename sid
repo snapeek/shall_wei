@@ -48,14 +48,14 @@ stop)
     echo "No sidekiq process to stop"
     exit
   fi
-  bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 60
+  bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 30
   ;;
 restart)
   if [ $pid_file_exist = 0 ]; then
     echo "Cannot find sidekie.pid at tmp/pids."
     echo "No sidekiq process to stop"
   else
-    bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 60
+    bundle exec sidekiqctl stop tmp/pids/sidekiq.pid 30
   fi
   bundle exec sidekiq -C config/sidekiq.yml -q shallwei_$ENVIRONMENT -e $ENVIRONMENT -d
   ;;
