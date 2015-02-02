@@ -122,8 +122,11 @@ module WeiboUtils
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
       ensure
-        cap.destroy
-        File.delete("./public/captchas/#{file_name}.png") if File.exist?("./public/captchas/#{file_name}.png")
+        if File.exist?("./public/captchas/#{file_name}.png")
+          FileUtils.copy("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png")
+          File.delete("./public/captchas/#{file_name}.png") 
+          cap.destroy
+        end
       end
 
       # def input_captcha
