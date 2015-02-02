@@ -7,7 +7,7 @@
     - [oopsCrawl, 2]
 
 development:
-  :concurrency: 10
+  :concurrency: 30
 staging:
   :concurrency: 10
 production:
