@@ -36,6 +36,8 @@ class Account
     else
       ret.proxy = ::Proxy.get_one
     end
+    ret.use_count = Time.now.to_i
+    ret.save
     ret
   end
 
