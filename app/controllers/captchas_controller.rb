@@ -42,6 +42,7 @@ class CaptchasController < ApplicationController
   def update
     respond_to do |format|
       if @captcha.update(captcha_params)
+        @captcha.save_as
         format.html { redirect_to captchas_path, notice: '验证码填写成功.' }
       else
         format.html { redirect_to captchas_path, notice: '验证码填写失败.' }
