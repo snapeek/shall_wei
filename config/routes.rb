@@ -2,7 +2,7 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   resources :keywords do
     member do
-      get :search_day_count, :weibo, :new_search, :wpath, :baidu_news
+      get :search_day_count, :weibo, :new_search, :wpath, :baidu_news, :ctn_search
     end
   end
 

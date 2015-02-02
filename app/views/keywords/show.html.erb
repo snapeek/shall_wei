@@ -29,7 +29,7 @@
         <td><%= k %></td>
         <td><%= v %></td>
         <% if kb = @keyword.get_kiber(k, v) %>
-        <td><%= kb.now_count %></td>
+        <td><%= kb.now_count %>  <%= link_to("继续抓取", controller: "keywords", action: "ctn_search", :kid => kb.id )%> </td>
         <% else %>
         <td> <%= link_to("开始抓取", controller: "keywords", action: "new_search", :starttime => k, :all_count => v )%> </td>
         <% end %>
