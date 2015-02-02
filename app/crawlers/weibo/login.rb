@@ -46,6 +46,7 @@ module WeiboUtils
         delay
         retry
       rescue Exception => e
+        binding.pry
         xaccount
         logger.info "> 登录失败"
         logger.info e.backtrace.slice(0..5).join('\n')
