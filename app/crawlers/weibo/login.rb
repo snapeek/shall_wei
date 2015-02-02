@@ -124,7 +124,6 @@ module WeiboUtils
       ensure
         FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
         cap.destroy
-        end
       end
 
       # def input_captcha
