@@ -16,17 +16,6 @@ module WeiboUtils
         end
       end
 
-      def relogin
-        3.times do
-          if try_login
-            @is_login = true
-            break
-          else
-            @is_login = false
-          end
-        end
-      end
-
       def cookies
         @weibos_spider.cookie_jar
       end
