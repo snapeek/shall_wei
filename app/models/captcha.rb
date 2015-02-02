@@ -7,7 +7,7 @@ class Captcha
   def save_as
     file_name = id.to_s
     
-    File.copy("./public/captchas/#{file_name}.png", "./public/captchas/#{code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+    FileUtils.copy("./public/captchas/#{file_name}.png", "./public/captchas/#{code}.png") if File.exist?("./public/captchas/#{file_name}.png")
   end
 
 end
