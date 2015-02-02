@@ -76,6 +76,15 @@ class KeywordsController < ApplicationController
     end
   end
 
+  def ctn_search
+    k = Kiber.find(params[:kid])
+    WeiboSearchWorker.perform_async k.id.to_s
+    respond_to do |format|
+      format.html { redirect_to @keyword, notice: '继续爬取!' }
+      format.json { render :show, status: :created, location: @keyword }
+    end
+  end
+
   def search_day_count
     DayCountWorker.perform_async @keyword.id.to_s
     respond_to do |format|
