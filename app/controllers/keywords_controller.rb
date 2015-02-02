@@ -1,5 +1,5 @@
 class KeywordsController < ApplicationController
-  before_action :set_keyword, only: [:show, :edit, :update, :destroy, :search_day_count, :new_search, :weibo]
+  before_action :set_keyword, only: [:show, :edit, :update, :destroy, :search_day_count, :new_search, :weibo, :ctn_search]
 
   # GET /keywords
   # GET /keywords.json
