@@ -130,6 +130,7 @@ module WeiboUtils
         logger.info("> 更换账号: #{@account.username}(#{@account.level}).")
         username = @account.username
         password = @account.password
+        login
         @relogin_count = 0
       end
 
