@@ -9,8 +9,8 @@ module WeiboUtils
       return page if is_ajax && page.is_a?(Mechanize::File)
 
       page = ensure_not_captcha_page(page)
-      page = ensure_not_relogin_page(page)
-      # page = ensure_logined_page(page, url)
+      # page = ensure_not_relogin_page(page)
+      page = ensure_logined_page(page, url)
       raise "UserBlocked" if is_block_page?(page)
     rescue SystemExit, Interrupt
       ensure_use_logout
