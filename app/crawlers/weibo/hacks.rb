@@ -260,7 +260,9 @@ module WeiboUtils
       @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
       @x_captcha = input_captcha(cap)
     ensure
+      FileUtils.copy("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png")
       File.delete("./public/captchas/#{file_name}.png") if File.exist?("./public/captchas/#{file_name}.png")
+      cap.destroy
     end
 
     def ensure_not_captcha_page(page)
