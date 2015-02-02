@@ -288,7 +288,7 @@ module WeiboUtils
         if @relogin_count >= 3
           xaccount
         else
-          relogin
+          login
           @relogin_count += 1 
         end
         page = @weibos_spider.get(url)
