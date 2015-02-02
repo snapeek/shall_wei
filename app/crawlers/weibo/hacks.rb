@@ -283,7 +283,7 @@ module WeiboUtils
         page
       else
         logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
-        if @relogin_count > 5
+        if @relogin_count >= 3
           xaccount
         else
           relogin
@@ -292,6 +292,7 @@ module WeiboUtils
         page = @weibos_spider.get(url)
         page = ensure_not_relogin_page(page)
       end
+      page
     end
   end
 end

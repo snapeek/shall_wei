@@ -22,7 +22,7 @@ class Proxy
   def self.get_one(_location = nil)
     ret = nil
     prxs = where(:is_deleted => false).order("last_use DESC")
-    if prxs.count < 40
+    if prxs.count < 100
       get_from_dl
       prxs = where(:is_deleted => false).order("last_use DESC")
     end

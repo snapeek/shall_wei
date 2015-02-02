@@ -133,8 +133,9 @@ module WeiboUtils
       # end
 
       def xaccount
-        @account.level += 1
+        @account.level += 4
         @account.save
+        cookies.clear
         @account = Account.get_one
         logger.info("> 更换账号: #{@account.username}(#{@account.level}).")
         username = @account.username
