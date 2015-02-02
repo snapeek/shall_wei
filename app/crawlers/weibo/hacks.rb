@@ -284,6 +284,7 @@ module WeiboUtils
       if get_config(page, "islogin").to_s == '1'
         page
       else
+        binding.pry
         logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
         if @relogin_count >= 3
           xaccount
