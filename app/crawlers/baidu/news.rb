@@ -28,9 +28,10 @@ module BaiduUtils
             $a = cresult
             result = cresult[:field].inject({}){|a, b| a.merge(b)}
             i = 0
+            next if result[:each_news].blank?
             result[:each_news].each do |line|
               if line[:lcount] > 0
-                line[:lcountents] = (cresult[:follow][0][i][:field].inject({}){|a, b| a.merge(b)}[:lnews] rescue [])
+                line[:lcountents] = (cresult[:follow][0].select{|ln| ln["entrance"] == line["ent"] }.first[:field].inject({}){|a, b| a.merge(b)}[:lnews] rescue [])
                 i += 1
               end
               key.baidu_news.create(line)
@@ -71,6 +72,7 @@ module BaiduUtils
               news[:created_at] = Time.parse(news_body.find(".c-summary .c-author").text).to_i
               news[:source] = news_body.find(".c-summary .c-author").text.split(' ').try('[]', 0)
               news[:lcount] = (news_body.find("a.c-more_link").native.text.match(/\d+/).to_s.to_i rescue 0)
+              news[:ent] = (news_body.find("a.c-more_link").native.attr("href") rescue "non")
               news
             end
 

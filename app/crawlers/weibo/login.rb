@@ -9,10 +9,11 @@ module WeiboUtils
       public
 
       def login(rel = false)
+        xaccount_if_too_many_cpc
         if try_login_with_cookies or try_login
-          @is_login = true
+          return true
         else
-          @is_login = false
+          xaccount
         end
       end
 
@@ -28,28 +29,30 @@ module WeiboUtils
           end
         end
       end
+
       def try_login
         login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", login_data)
         callback_url = login_page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
         after_login_page = @weibos_spider.get(callback_url)
+      rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT,
+        Net::HTTP::Persistent::Error, Net::HTTPInternalServerError, Net::HTTPNotImplemented
+        xproxy
+        retry
         result_json = JSON.parse(after_login_page.body.match(/\{[\w\W]*\}/).to_s)
         if result_json["result"]
           save_cookies
           logger.info "> 登录成功: 通过账号密码登陆 #{username}"
         else
           delete_cookies
+          # binding.pry
           rescue_when_errno_is(result_json["errno"])
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
-      rescue Net::HTTP::Persistent::Error
-        xproxy
-        delay
-        retry
       rescue Exception => e
-        binding.pry
-        xaccount
+        # binding.pry
         logger.info "> 登录失败"
-        logger.info e.backtrace.slice(0..5).join('\n')
+        logger.info e.backtrace.slice(0..5).join("\n")
+        return false
       end
 
       private
@@ -82,7 +85,8 @@ module WeiboUtils
           'from'=> '', 
           'savestate'=> '7', 
           'userticket'=> '1',
-          'ssosimplelogin'=> '1', 
+          # 'ssosimplelogin'=> '1', 
+          'pagerefer' => 'http://weibo.com',
           'vsnf'=> '1', 
           'su'=> encode_username,
           'service'=> 'miniblog', 
@@ -96,9 +100,10 @@ module WeiboUtils
           'sp'=> encode_password,
           'encoding'=> 'UTF-8', 
           'domain'=>'sina.com.cn',
-          'prelt'=> '115',
-          'returntype'=> 'MATA',
-          'url'=> "http://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack"
+          'prelt'=> '505',
+          # 'prelt'=> '115',
+          'url'=> "http://weibo.com/ajaxlogin.php?framelogin=1&callback=parent.sinaSSOController.feedBackUrlCallBack",
+          'returntype'=> 'MATA'
         }
 
         save_captcha unless @login_info["pcid"].empty?
@@ -106,6 +111,7 @@ module WeiboUtils
       end
 
       def save_captcha
+        set_cpc_count
         pcurl = "http://login.sina.com.cn/cgi/pin.php?r=#{(rand * 100000000).floor}&s=0&p=#{@login_info["pcid"]}"
         cap = Captcha.create
         file_name = cap.id.to_s
@@ -123,26 +129,39 @@ module WeiboUtils
       # end
 
       def xaccount(iso = true)
-        @account.level += 4 if iso
+        @account.level += 3 if iso
         @account.save
-        cookies.clear
+        set_account
+        login
+      end
+
+      def set_account
+        @weibos_spider.reset
         @account = Account.get_one
         logger.info("> 更换账号: #{@account.username}(#{@account.level}).")
-        username = @account.username
-        password = @account.password
-        login
-        @relogin_count = 0
+        @username = @account.username
+        @password = @account.password
+        @weibos_spider.set_proxy(@account.proxy.ip, @account.proxy.port)
+        @account
+      end
+
+      def set_cpc_count
+        if((Time.now - @account.last_use).to_i > 30.minutes)
+          @cpc_count = 0
+        else
+          @cpc_count += 1
+        end 
+      end
+
+      def xaccount_if_too_many_cpc
+        if @cpc_count > 5
+          set_account
+        end
       end
 
       def input_captcha(cap)
         puts "请输入验证码:"
         reload_count = 0
-        if((Time.now - @account.last_use).to_i > 10.minutes)
-          @cpc_count = 0
-        else
-          @cpc_count += 1
-        end
-        xaccount if @cpc_count > 5
         while reload_count < 25
           if reload_count < 10
             sleep(5)

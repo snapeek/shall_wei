@@ -4,7 +4,7 @@ require File.expand_path("../../app/crawlers/weibo_crawl", __FILE__)
 require File.expand_path("../../app/crawlers/oops_crawl", __FILE__)
 require File.expand_path("../../lib/nlpir", __FILE__)
 
-@weibo = WeiboCrawl.new
+# @weibo = WeiboCrawl.new
 @oops = OopsCrawl.new
 def login(username = nil, password = nil)
   # username ||= "xzwyqy@163.com"
@@ -22,26 +22,24 @@ def set_delay(_d)
 end
 
 def search(kid)
-  if @weibo.login 
-    k = Kiber.find(kid)
-    while true
-      break if k.crdtime > k.endtime
-      starttime = Time.at(k.crdtime).strftime("%F-%H")
-      endtime = Time.at(k.crdtime + k.gap.hours).strftime("%F-%H")
-      @weibo.search(
-        keyword: k.keyword.content, 
-        page: k.page , 
-        starttime: starttime, 
-        endtime: endtime, 
-        xsort: false, 
-        ori: true,
-        kid: kid)
-      k.crdtime += k.gap.hours
-      k.page = 1
-    end
-    k.status = k.status | 4
-    k.save
+  k = Kiber.find(kid)
+  while true
+    break if k.crdtime > k.endtime
+    starttime = Time.at(k.crdtime).strftime("%F-%H")
+    endtime = Time.at(k.crdtime + k.gap.hours).strftime("%F-%H")
+    @weibo.search(
+      keyword: k.keyword.content, 
+      page: k.page , 
+      starttime: starttime, 
+      endtime: endtime, 
+      xsort: false, 
+      ori: true,
+      kid: kid)
+    k.crdtime += k.gap.hours
+    k.page = 1
   end
+  k.status = k.status | 4
+  k.save
 end
 
 def news(key_id)

@@ -16,8 +16,8 @@ module WeiboUtils
       end
 
       def xproxy
-        prx = ::Proxy.get_one
         logger.info("> 更换代理.")
+        prx = ::Proxy.get_one
         @account.proxy.destroy
         @account.proxy = prx
         @account.save

@@ -1,54 +1,6 @@
 module WeiboUtils
   module Hacks
 
-    def get_with_login(url, is_ajax = false)
-      delay
-      ensure_use_count
-      page = @weibos_spider.get(url)
-
-      return page if is_ajax && page.is_a?(Mechanize::File)
-
-      page = ensure_not_captcha_page(page)
-      # page = ensure_not_relogin_page(page)
-      page = ensure_logined_page(page, url)
-      raise "UserBlocked" if is_block_page?(page)
-    rescue SystemExit, Interrupt
-      ensure_use_logout
-      logger.fatal("SystemExit && Interrupt")
-      print "确定要退出吗?(y/n) "
-      exit! if gets.include?('y')
-    rescue Net::HTTP::Persistent::Error
-      delay
-      retry
-    rescue Errno::ECONNREFUSED
-      xproxy
-      retry
-    rescue Exception => e
-      ensure_use_logout
-      logger.fatal("HtmlError:")
-      # binding.pry
-      logger.fatal(page.search("body").text)
-    ensure
-      return page
-    end
-
-    def jget(url)
-      delay
-      page = @weibos_spider.get(url)
-    rescue SystemExit, Interrupt
-      logger.fatal("SystemExit && Interrupt")
-      print "确定要退出吗?(y/n) "
-      exit! if gets.include?('y')
-    rescue Net::HTTP::Persistent::Error
-      delay
-      retry      
-    rescue Exception => e
-      logger.fatal("HtmlError:")
-      logger.fatal(page.search("body").text)
-    ensure
-      return page
-    end
-
     def get_attr(node, attr_name)
       # logger.info "> 开始解析: #{attr_name}"
       return "" unless node.present?
@@ -56,16 +8,14 @@ module WeiboUtils
         ret = node.attr(attr_name).to_s
       rescue Exception => err
         # binding.pry
-        logger.fatal("> 提取出错: `#{attr_name}`")
-        logger.fatal(err)
+        logger.fatal("> 提取出错: `#{attr_name}` #{err}")
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
       end
       if block_given?
         begin
           ret = yield(ret)
         rescue Exception => err
-          logger.fatal("> 执行出错:")
-          logger.fatal(err)
+          logger.fatal("> 执行出错: #{err}")
           logger.fatal(err.backtrace.slice(0,5).join("\n"))
         end
       end
@@ -78,8 +28,7 @@ module WeiboUtils
       ret = attr_name ? get_attr(ret, attr_name) : ret
       ret = yield(ret) if block_given?
     rescue Exception => err
-      logger.fatal("> 执行出错:")
-      logger.fatal(err)
+      logger.fatal("> 执行出错: #{err}")
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
     ensure   
       return ret.present? ? ret : ""
@@ -91,8 +40,7 @@ module WeiboUtils
       ret = attr_name ? ret.map{ |e| get_attr(e, attr_name)} : ret
       ret = ret.map{|pice| yield(pice)} if block_given?
     rescue Exception => err
-      logger.fatal("> 执行出错:")
-      logger.fatal(err)
+      logger.fatal("> 执行出错: #{err}")
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
     ensure   
       return ret.present? ? ret.select{|e| e.present? } : []
@@ -102,8 +50,7 @@ module WeiboUtils
       logger.info "> 开始解析: #{selector}"
       ret = node.search(selector)
     rescue Exception => err
-      logger.fatal("> 解析出错: `#{selector}`")
-      logger.fatal(err)
+      logger.fatal("> 解析出错: `#{selector}` #{err}")
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
     ensure
       return ret
@@ -207,97 +154,5 @@ module WeiboUtils
     ]
     end
 
-    private
-
-    def is_block_page?(page)
-      page.uri.to_s.include?("userblock")
-    end
-
-    def ensure_use_count
-      # prx = @account.proxy
-      if @account.use_count > 1000
-        @account.use_count = 0
-        @account.last_use = Time.now.to_i
-        @account.on_crawl = false
-        @account.save
-        xaccount(false)
-        @account.use_count = 0
-        set_proxy
-        login
-      end
-      prx = @account.proxy
-      set_proxy unless prx 
-      prx.last_use = @account.last_use   = Time.now.to_i
-      @account.use_count += 1
-      @account.on_crawl = true
-      @account.save
-      prx.save
-    end
-
-    def ensure_use_logout
-      @account.on_crawl =false
-      @account.save
-    end
-
-    def ensure_not_relogin_page(page)
-      if page.uri.to_s.include?("login.sina.com.cn/sso/login.php?")
-        logger.info("> 访问出错: 账号登陆状态被重置,正在重试.")
-        wlr = page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
-        page = @weibos_spider.get(wlr)
-      elsif page.uri.to_s.include?("http://passport.weibo.com/visitor/visitor?a=enter")
-        logger.info("> 访问出错: 账号登陆状态被重置,正在重试.")
-        wlr = page.uri.to_s
-        page = @weibos_spider.get(wlr)
-      end
-      save_cookies
-      page
-    end
-
-    def save_x_captcha
-      pcurl = "http://s.weibo.com/ajax/pincode/pin?type=sass&amp;ts=#{Time.now.to_i}"
-      cap = Captcha.create
-      file_name = cap.id.to_s
-      @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
-      @x_captcha = input_captcha(cap)
-    ensure
-      cap.destroy
-      FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-      # File.delete("./public/captchas/#{file_name}.png") 
-    end
-
-    def ensure_not_captcha_page(page)
-      if captcha_pice = get_script_html(page, 'pl_common_sassfilter')
-        save_x_captcha
-        page_uri = page.uri.to_s
-        ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
-        ret = JSON.parse(ret.body)
-        if ret["code"] == "100000"
-          return @weibos_spider.get(page_uri)
-        else
-          return ensure_not_captcha_page(page)
-        end
-      end
-      page
-    end
-
-    def ensure_logined_page(page, url)
-      if get_config(page, "islogin").to_s == '1'
-        page
-      else
-        scount = 3
-        while get_config(page, "islogin").to_s == '0' && scount > 0
-          scount -= 1
-          logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
-          if @relogin_count >= 3
-            xaccount
-          else
-            login
-            @relogin_count += 1 
-          end
-          page = @weibos_spider.get(url)
-        end
-      end
-      page
-    end
   end
 end
