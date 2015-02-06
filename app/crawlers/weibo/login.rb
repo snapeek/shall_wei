@@ -44,12 +44,12 @@ module WeiboUtils
           logger.info "> 登录成功: 通过账号密码登陆 #{username}"
         else
           delete_cookies
-          binding.pry
+          # binding.pry
           rescue_when_errno_is(result_json["errno"])
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
         end
       rescue Exception => e
-        binding.pry
+        # binding.pry
         logger.info "> 登录失败"
         logger.info e.backtrace.slice(0..5).join("\n")
         return false

@@ -28,7 +28,7 @@ module WeiboUtils
     rescue Exception => e
       ensure_use_logout
       logger.fatal("HtmlError:")
-      binding.pry
+      # binding.pry
       logger.fatal(page.search("body").text)
     ensure
       @retry_time = 0
