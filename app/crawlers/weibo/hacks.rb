@@ -284,16 +284,18 @@ module WeiboUtils
       if get_config(page, "islogin").to_s == '1'
         page
       else
-        binding.pry
-        logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
-        if @relogin_count >= 3
-          xaccount
-        else
-          login
-          @relogin_count += 1 
+        scount = 3
+        while get_config(page, "islogin").to_s == '0' && scount > 0
+          scount -= 1
+          logger.info("> 访问出错: 账号被登出,正在重试(#{@relogin_count}).")
+          if @relogin_count >= 3
+            xaccount
+          else
+            login
+            @relogin_count += 1 
+          end
+          page = @weibos_spider.get(url)
         end
-        page = @weibos_spider.get(url)
-        page = ensure_not_relogin_page(page)
       end
       page
     end
