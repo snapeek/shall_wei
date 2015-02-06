@@ -6,6 +6,7 @@ class BaiduNews
   field :summary,    :type => String
   field :url,        :type => String
   field :source,     :type => String
+  field :ent,        :type => String
 
   field :created_at, :type => Integer
 
