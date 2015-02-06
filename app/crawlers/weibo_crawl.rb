@@ -17,9 +17,9 @@ class WeiboSpider
 
   attr_accessor :logger, :username, :password, :account, :last_use, :bak
 
-  def initialize
+  def initialize(logger)
     super
-    @logger = Logger.new(STDOUT)
+    @logger = logger
     @login_count ||= 0
     @login_count += 1
     @weibos_spider = Mechanize.new do |m|
@@ -70,7 +70,7 @@ class WeiboCrawl
   end
 
   def add_spider
-    ws = WeiboSpider.new
+    ws = WeiboSpider.new(@logger)
     @weibos_spiders << ws
     ws.login
     # Thread.fork{ ws.login }
