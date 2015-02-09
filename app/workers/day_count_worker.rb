@@ -4,8 +4,6 @@ class DayCountWorker
   def perform(key_id)
     weibo = WeiboCrawl.new
     key = Keyword.find(key_id)
-    if weibo.login 
-      weibo.search_day_count(key)
-    end    
+    weibo.search_day_count(key)
   end
 end

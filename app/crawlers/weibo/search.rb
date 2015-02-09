@@ -81,10 +81,9 @@ module WeiboUtils
         end
       rescue Exception => err
         # binding.pry
-        logger.fatal("> 搜索出错:")
-        logger.fatal(err)
+        logger.fatal("> 搜索出错: #{err}")
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
-        save_status(options)
+        # save_status(options)
       ensure
         return result
       end

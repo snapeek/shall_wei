@@ -16,7 +16,7 @@
         <td><%= link_to(weibo.weibo_user.name, weibo.weibo_user.get_url) %> </td>
         <td><%= weibo.content  %></td>
         <td><%= link_to(weibo.reposts_count, "http://weibo.com#{weibo.reposts_url}")  %></td>
-        <td><%= "点击采集传播路径" %></td>
+        <td> <%= link_to("点击采集传播路径", controller: "keywords", action: "reposts", :mid => weibo.mid)%> </td>
       </tr>
     <% end %>
   </tbody>

@@ -34,7 +34,7 @@ class KeywordsController < ApplicationController
   end
 
   def repost
-    Wpath.perform_async params[:mid]
+    Reposts.perform_async params[:mid]
     respond_to do |format|
       if @keyword.save
         format.html { redirect_to @keyword, notice: '开始爬取!' }
