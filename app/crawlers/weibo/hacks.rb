@@ -64,7 +64,10 @@ module WeiboUtils
       else
         pice = scripts.select{|script| script["ns"] == ns || script["pid"] == ns || script["domid"] == ns}.first
       end
-
+    rescue Exception => err
+      logger.fatal("> 解析出错: `#{selector}` #{err}")
+      logger.fatal(err.backtrace.slice(0,5).join("\n")) 
+    ensure
       return Nokogiri.HTML(pice["html"]) if pice
     end
 

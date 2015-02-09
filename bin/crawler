@@ -4,21 +4,24 @@ require File.expand_path("../../app/crawlers/weibo_crawl", __FILE__)
 require File.expand_path("../../app/crawlers/oops_crawl", __FILE__)
 require File.expand_path("../../lib/nlpir", __FILE__)
 
-# @weibo = WeiboCrawl.new
 @oops = OopsCrawl.new
+def weibo
+  @weibo ||= WeiboCrawl.new
+end
+
 def login(username = nil, password = nil)
   # username ||= "xzwyqy@163.com"
   # password ||= "1991lamb"
   @username = username if username
   @password = password if password
-  if @weibo.login 
-    opt = @weibo.load_status
+  if weibo.login 
+    opt = weibo.load_status
     search(opt) if opt
   end
 end
 
 def set_delay(_d)
-  @weibo.delay_times = _d 
+  weibo.delay_times = _d 
 end
 
 def search(kid)
@@ -27,7 +30,7 @@ def search(kid)
     break if k.crdtime > k.endtime
     starttime = Time.at(k.crdtime).strftime("%F-%H")
     endtime = Time.at(k.crdtime + k.gap.hours).strftime("%F-%H")
-    @weibo.search(
+    weibo.search(
       keyword: k.keyword.content, 
       page: k.page , 
       starttime: starttime, 
@@ -47,8 +50,13 @@ def news(key_id)
   @oops.crawl_news(k)
 end
 
+def dayc(key_id)
+  key = Keyword.find(key_id)
+  weibo.search_day_count(key)
+end
+
 def continue_search
-  search(@weibo.search_options)
+  search(weibo.search_options)
 end
 
 puts "
