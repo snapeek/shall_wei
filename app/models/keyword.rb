@@ -22,18 +22,17 @@ class CSV
 
     @headers =  row if header_row?
     @lineno  += 1
-    @force_encoding = true
     output = row.map(&@quote).join(@col_sep) + @row_sep  # quote and separate
     if @io.is_a?(StringIO)             and
        output.encoding != (encoding = raw_encoding)
       if @force_encoding
-        binding.pry
         output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
       elsif (compatible_encoding = Encoding.compatible?(@io.string, output))
         @io.set_encoding(compatible_encoding)
         @io.seek(0, IO::SEEK_END)
       end
     end
+    output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
     @io << output
 
     self  # for chaining
