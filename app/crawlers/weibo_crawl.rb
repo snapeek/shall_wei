@@ -18,7 +18,6 @@ class WeiboSpider
   attr_accessor :logger, :username, :password, :account, :last_use, :bak
 
   def initialize(logger)
-    super
     @logger = logger
     @login_count ||= 0
     @login_count += 1
