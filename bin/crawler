@@ -4,7 +4,7 @@ require File.expand_path("../../app/crawlers/weibo_crawl", __FILE__)
 require File.expand_path("../../app/crawlers/oops_crawl", __FILE__)
 require File.expand_path("../../lib/nlpir", __FILE__)
 
-# @weibo = WeiboCrawl.new
+@weibo = WeiboCrawl.new
 @oops = OopsCrawl.new
 def login(username = nil, password = nil)
   # username ||= "xzwyqy@163.com"

@@ -22,7 +22,7 @@ class Proxy
   def self.get_one(_location = nil)
     ret = nil
     prxs = where(:is_deleted => false).order("last_use DESC")
-    if prxs.count < 100
+    if prxs.count < 50
       get_from_dl
       prxs = where(:is_deleted => false).order("last_use DESC")
     end
@@ -53,12 +53,14 @@ class Proxy
 
   def self.get_from_dl
     http_client = Mechanize.new
-    url = "http://tiqu.daili666.com/ip/?tid=558226031849865&num=20&area=北京&filter=on"
+    # url = "http://tiqu.daili666.com/ip/?tid=558226031849865&num=20&area=北京&filter=on"
+    url = "http://www.kuaidaili.com/api/getproxy/?orderid=922345369410677&num=30&browser=1&protocol=1&method=1&an_ha=1&sp1=1&sp2=1&f_loc=1&f_an=1&f_sp=1&sort=1&dedup=1&sep=4"
     http_client.get(url) do |page|
-      proxies = page.body.split(/\s+/)
+      proxies = page.body.split('|')
       proxies.each do |prp|
+        prp = prp.split(',')[0] # only kuaidaili
         pr = prp.split(':')
-        ::Proxy.create(ip: pr[0], port: pr[1], location: "北京")
+        ::Proxy.find_or_create_by(ip: pr[0], port: pr[1])
       end
     end
   end
