@@ -15,7 +15,7 @@ module WeiboUtils
           )
           page = get_with_login("http://s.weibo.com/weibo/#{key.content}?page=1&#{params}")
           tweets = get_script_html(page, "pl_weibo_direct")
-          binding.pry
+          tweets = page if get_field(page, ".search_num").present?
           if tweets.present?
             _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = get_field(tweets, ".search_num"){|e| e.text.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
           else
