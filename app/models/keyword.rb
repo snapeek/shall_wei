@@ -27,6 +27,7 @@ class CSV
     if @io.is_a?(StringIO)             and
        output.encoding != (encoding = raw_encoding)
       if @force_encoding
+        binding.pry
         output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
       elsif (compatible_encoding = Encoding.compatible?(@io.string, output))
         @io.set_encoding(compatible_encoding)
