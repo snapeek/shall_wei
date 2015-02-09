@@ -2,47 +2,8 @@ require 'csv'
 
 class CSV
 
-  def initialize(data, options = Hash.new)
-    # build the options for this read/write
-    options = DEFAULT_OPTIONS.merge(options)
-
-    # create the IO object we will read from
-    @io       = data.is_a?(String) ? StringIO.new(data) : data
-    # honor the IO encoding if we can, otherwise default to ASCII-8BIT
-    @encoding = raw_encoding(nil) ||
-                ( if encoding = options.delete(:internal_encoding)
-                    case encoding
-                    when Encoding; encoding
-                    else Encoding.find(encoding)
-                    end
-                  end ) ||
-                ( case encoding = options.delete(:encoding)
-                  when Encoding; encoding
-                  when /\A[^:]+/; Encoding.find($&)
-                  end ) ||
-                Encoding.default_internal || Encoding.default_external
-    #
-    # prepare for building safe regular expressions in the target encoding,
-    # if we can transcode the needed characters
-    #
-    @re_esc   =   "\\".encode(@encoding) rescue ""
-    @re_chars =   /#{%"[-\\]\\[\\.^$?*+{}()|# \r\n\t\f\v]".encode(@encoding, :invalid => :replace, :undef => :replace, :replace => " ")}/
-
-    init_separators(options)
-    init_parsers(options)
-    init_converters(options)
-    init_headers(options)
-    init_comments(options)
-
-    @force_encoding = !!(encoding || options.delete(:encoding))
-    options.delete(:internal_encoding)
-    options.delete(:external_encoding)
-    unless options.empty?
-      raise ArgumentError, "Unknown options:  #{options.keys.join(', ')}."
-    end
-
-    # track our own lineno since IO gets confused about line-ends is CSV fields
-    @lineno = 0
+  def encode_str(*chunks)
+    chunks.map { |chunk| chunk.encode(@encoding.name, invalid: :replace, undef: :replace, replace: "?") }.join('')
   end
 
 end
