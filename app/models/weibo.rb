@@ -36,7 +36,6 @@ class Weibo
 
   # index({ mid: 1 })
 
-
   validates :created_at, presence: true
   def self.woms(is_all = false)
     {

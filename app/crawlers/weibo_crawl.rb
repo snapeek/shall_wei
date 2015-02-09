@@ -17,8 +17,8 @@ class WeiboSpider
 
   attr_accessor :logger, :username, :password, :account, :last_use, :bak
 
-  def initialize(logger)
-    @logger = logger
+  def initialize
+    @logger = $logger
     @login_count ||= 0
     @login_count += 1
     @weibos_spider = Mechanize.new do |m|
@@ -57,7 +57,8 @@ class WeiboCrawl
   attr_accessor :logger, :delay_times, :search_options, :current_weibo_spider, :account
 
   def initialize(args = nil)
-    @logger = Logger.new(STDOUT)
+    $logger ||= Logger.new(STDOUT)
+    @logger = $logger
     # @logger = Logger.new("log/weibo_crawl.log", 'daily')
     @broken_paths = []
     @delay_times = 2..5
