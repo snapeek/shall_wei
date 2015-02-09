@@ -11,7 +11,7 @@ module WeiboUtils
         logger.fatal("> 提取出错: `#{attr_name}` #{err}")
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
       end
-      if block_given?
+      if block_given? && ret.present?
         begin
           ret = yield(ret)
         rescue Exception => err
@@ -26,7 +26,7 @@ module WeiboUtils
       ret = nil
       ret = node.search(selector).first
       ret = attr_name ? get_attr(ret, attr_name) : ret
-      ret = yield(ret) if block_given?
+      ret = yield(ret) if block_given? && ret.present?
     rescue Exception => err
       logger.fatal("> 执行出错: #{err}")
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
@@ -38,7 +38,7 @@ module WeiboUtils
       ret = nil
       ret = node.search(selector)
       ret = attr_name ? ret.map{ |e| get_attr(e, attr_name)} : ret
-      ret = ret.map{|pice| yield(pice)} if block_given?
+      ret = ret.map{|pice| yield(pice)} if block_given? && ret.present?
     rescue Exception => err
       logger.fatal("> 执行出错: #{err}")
       logger.fatal(err.backtrace.slice(0,5).join("\n")) 
