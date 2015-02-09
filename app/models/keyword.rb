@@ -32,7 +32,9 @@ class Keyword
     # CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["标题", "地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
       baidu_news.each do |bn|
-        csv << [bn.title, bn.url, bn.source, Time.at(bn.created_at), (bn.lcountents.count rescue 0) , (bn.lcountents.map { |e| e["source"] + e["created_at"] }.join(' ') rescue '')]
+        csv << [bn.title.encode("GBK", invalid: :replace, undef: :replace, replace: "?"), 
+          bn.url, bn.source, Time.at(bn.created_at), (bn.lcountents.count rescue 0) , 
+          (bn.lcountents.map { |e| "#{e["source"].encode("GBK", invalid: :replace, undef: :replace, replace: "?")(e["created_at"])}" }.join(' ') rescue '')]
       end
     end
   end
