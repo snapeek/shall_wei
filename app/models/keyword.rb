@@ -1,46 +1,5 @@
 require 'csv'
 
-class CSV
-
-  def encode_str(*chunks)
-    chunks.map { |chunk| chunk.encode(@encoding.name, invalid: :replace, undef: :replace, replace: "?") }.join('')
-  end
-
-  def <<(row)
-    # make sure headers have been assigned
-    if header_row? and [Array, String].include? @use_headers.class
-      parse_headers  # won't read data for Array or String
-      self << @headers if @write_headers
-    end
-
-    # handle CSV::Row objects and Hashes
-    row = case row
-          when self.class::Row then row.fields
-          when Hash            then @headers.map { |header| row[header] }
-          else                      row
-          end
-
-    @headers =  row if header_row?
-    @lineno  += 1
-    output = row.map(&@quote).join(@col_sep) + @row_sep  # quote and separate
-    if @io.is_a?(StringIO)             and
-       output.encoding != (encoding = raw_encoding)
-      if @force_encoding
-        output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
-      elsif (compatible_encoding = Encoding.compatible?(@io.string, output))
-        @io.set_encoding(compatible_encoding)
-        @io.seek(0, IO::SEEK_END)
-      end
-    end
-    output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
-    @io << output
-
-    self  # for chaining
-  end
-
-end
-
-
 class Keyword
   include Mongoid::Document
   field :content          , :type => String
@@ -71,9 +30,9 @@ class Keyword
   def baidu_news_to_csv
     CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
     # CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
-      csv << ["标题", "摘要","地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
+      csv << ["标题", "地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
       baidu_news.each do |bn|
-        csv << [bn.title, bn.summary, bn.url, bn.source, Time.at(bn.created_at), (bn.lcountents.count rescue 0) , (bn.lcountents.map { |e| e["source"] + e["created_at"] }.join(' ') rescue '')]
+        csv << [bn.title, bn.url, bn.source, Time.at(bn.created_at), (bn.lcountents.count rescue 0) , (bn.lcountents.map { |e| e["source"] + e["created_at"] }.join(' ') rescue '')]
       end
     end
   end
