@@ -6,6 +6,38 @@ class CSV
     chunks.map { |chunk| chunk.encode(@encoding.name, invalid: :replace, undef: :replace, replace: "?") }.join('')
   end
 
+  def <<(row)
+    # make sure headers have been assigned
+    if header_row? and [Array, String].include? @use_headers.class
+      parse_headers  # won't read data for Array or String
+      self << @headers if @write_headers
+    end
+
+    # handle CSV::Row objects and Hashes
+    row = case row
+          when self.class::Row then row.fields
+          when Hash            then @headers.map { |header| row[header] }
+          else                      row
+          end
+
+    @headers =  row if header_row?
+    @lineno  += 1
+
+    output = row.map(&@quote).join(@col_sep) + @row_sep  # quote and separate
+    if @io.is_a?(StringIO)             and
+       output.encoding != (encoding = raw_encoding)
+      if @force_encoding
+        output = output.encode(encoding, invalid: :replace, undef: :replace, replace: "?")
+      elsif (compatible_encoding = Encoding.compatible?(@io.string, output))
+        @io.set_encoding(compatible_encoding)
+        @io.seek(0, IO::SEEK_END)
+      end
+    end
+    @io << output
+
+    self  # for chaining
+  end
+
 end
 
 
