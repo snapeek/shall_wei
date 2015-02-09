@@ -24,8 +24,10 @@ class Keyword
     repost_to_scv
   end
 
+  
+
   def baidu_news_to_csv
-    CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
+    CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, :replace: "?") do |csv|
     # CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["标题", "摘要","地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
       baidu_news.each do |bn|
@@ -35,7 +37,7 @@ class Keyword
   end
 
   def day_count_to_csv
-    CSV.open("tmp/csv/#{content}-微博每日提及数-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
+    CSV.open("tmp/csv/#{content}-微博每日提及数-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, :replace: "?") do |csv|
       csv << ["日期", "提及数"]
       day_count.each do |dd, dc|
         csv << [dd, dc]
@@ -44,7 +46,7 @@ class Keyword
   end
 
   def weibo_to_csv
-    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
+    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, :replace: "?") do |csv|
       csv << ["用户名", "内容", "发表时间", "转载数", "博主粉丝数", "博主关注数", "关注品牌媒体"]
       weibos.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count,w.weibo_user.fans_count, w.weibo_user.follow_count, 
@@ -54,7 +56,7 @@ class Keyword
   end
 
   def repost_to_scv
-    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
+    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, :replace: "?") do |csv|
       weibos.hot.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count]
           w.reposts.each do |ww|
