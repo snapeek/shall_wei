@@ -18,12 +18,13 @@ module WeiboUtils
           tweets = page if get_field(page, ".search_num").present?
           if tweets.present?
             _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = get_field(tweets, ".search_num"){|e| e.text.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+            
           else
             _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = 0
           end
           if _c.blank?
-            binding.pry
-          end
+            _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = get_fields(tweets, ".feed_list").count
+          end          
           logger.info("> 成功获取: #{Time.at(key.crdtime).strftime("%F")} : #{_c}")
           key.crdtime += 1.days
           key.save
