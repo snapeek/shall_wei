@@ -1,4 +1,53 @@
 require 'csv'
+
+class CSV
+
+  def initialize(data, options = Hash.new)
+    # build the options for this read/write
+    options = DEFAULT_OPTIONS.merge(options)
+
+    # create the IO object we will read from
+    @io       = data.is_a?(String) ? StringIO.new(data) : data
+    # honor the IO encoding if we can, otherwise default to ASCII-8BIT
+    @encoding = raw_encoding(nil) ||
+                ( if encoding = options.delete(:internal_encoding)
+                    case encoding
+                    when Encoding; encoding
+                    else Encoding.find(encoding)
+                    end
+                  end ) ||
+                ( case encoding = options.delete(:encoding)
+                  when Encoding; encoding
+                  when /\A[^:]+/; Encoding.find($&)
+                  end ) ||
+                Encoding.default_internal || Encoding.default_external
+    #
+    # prepare for building safe regular expressions in the target encoding,
+    # if we can transcode the needed characters
+    #
+    @re_esc   =   "\\".encode(@encoding) rescue ""
+    @re_chars =   /#{%"[-\\]\\[\\.^$?*+{}()|# \r\n\t\f\v]".encode(@encoding, :invalid => :replace, :undef => :replace, :replace => " ")}/
+
+    init_separators(options)
+    init_parsers(options)
+    init_converters(options)
+    init_headers(options)
+    init_comments(options)
+
+    @force_encoding = !!(encoding || options.delete(:encoding))
+    options.delete(:internal_encoding)
+    options.delete(:external_encoding)
+    unless options.empty?
+      raise ArgumentError, "Unknown options:  #{options.keys.join(', ')}."
+    end
+
+    # track our own lineno since IO gets confused about line-ends is CSV fields
+    @lineno = 0
+  end
+
+end
+
+
 class Keyword
   include Mongoid::Document
   field :content          , :type => String
@@ -27,7 +76,7 @@ class Keyword
 
 
   def baidu_news_to_csv
-    CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, replace: "?") do |csv|
+    CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
     # CSV.open("tmp/csv/#{content}-百度新闻-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["标题", "摘要","地址", "来源", "日期", "相同新闻数量(百度估算)","相同新闻来源"]
       baidu_news.each do |bn|
@@ -37,7 +86,7 @@ class Keyword
   end
 
   def day_count_to_csv
-    CSV.open("tmp/csv/#{content}-微博每日提及数-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, replace: "?") do |csv|
+    CSV.open("tmp/csv/#{content}-微博每日提及数-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
       csv << ["日期", "提及数"]
       day_count.each do |dd, dc|
         csv << [dd, dc]
@@ -46,7 +95,7 @@ class Keyword
   end
 
   def weibo_to_csv
-    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, replace: "?") do |csv|
+    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
       csv << ["用户名", "内容", "发表时间", "转载数", "博主粉丝数", "博主关注数", "关注品牌媒体"]
       weibos.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count,w.weibo_user.fans_count, w.weibo_user.follow_count, 
@@ -56,7 +105,7 @@ class Keyword
   end
 
   def repost_to_scv
-    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK",invalid: :replace, undef: :replace, replace: "?") do |csv|
+    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
       weibos.hot.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count]
           w.reposts.each do |ww|
