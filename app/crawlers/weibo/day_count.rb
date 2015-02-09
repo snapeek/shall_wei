@@ -21,6 +21,9 @@ module WeiboUtils
           else
             _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = 0
           end
+          if c.blank?
+            binding.pry
+          end
           logger.info("> 成功获取: #{Time.at(key.crdtime).strftime("%F")} : #{_c}")
           key.crdtime += 1.days
           key.save
