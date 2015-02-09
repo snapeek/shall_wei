@@ -34,7 +34,7 @@ class Keyword
       baidu_news.each do |bn|
         csv << [bn.title.encode("GBK", invalid: :replace, undef: :replace, replace: "?"), 
           bn.url, bn.source, Time.at(bn.created_at), (bn.lcountents.count rescue 0) , 
-          (bn.lcountents.map { |e| "#{e["source"].encode("GBK", invalid: :replace, undef: :replace, replace: "?")(e["created_at"])}" }.join(' ') rescue '')]
+          (bn.lcountents.map { |e| "#{e["source"].encode("GBK", invalid: :replace, undef: :replace, replace: "?")} #{(e["created_at"])}" }.join(' ') rescue '')]
       end
     end
   end
