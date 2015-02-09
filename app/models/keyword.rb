@@ -3,7 +3,7 @@ require 'csv'
 class CSV
 
   def encode_str(*chunks)
-    chunks.map { |chunk| chunk.encode(@encoding.name, invalid: :replace, undef: :replace, :replace: "?") }.join('')
+    chunks.map { |chunk| chunk.encode(@encoding.name, invalid: :replace, undef: :replace, replace: "?") }.join('')
   end
 
 end
