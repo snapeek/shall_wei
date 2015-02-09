@@ -70,7 +70,7 @@ class WeiboCrawl
   end
 
   def add_spider
-    ws = WeiboSpider.new(@logger)
+    ws = WeiboSpider.new
     @weibos_spiders << ws
     ws.login
     # Thread.fork{ ws.login }
