@@ -14,10 +14,12 @@ module WeiboUtils
             :ori        => true
           )
           page = get_with_login("http://s.weibo.com/weibo/#{key.content}?page=1&#{params}")
-          # tweets = get_script_html(page, "pl_weibo_direct")
-          # weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
-          binding.pry
-          _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = get_field(tweets, ".search_num"){|e| e.text.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          tweets = get_script_html(page, "pl_weibo_direct")
+          if tweets.present?
+            _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = get_field(tweets, ".search_num"){|e| e.text.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          else
+            _c = key.day_count[Time.at(key.crdtime).strftime("%F")] = 0
+          end
           logger.info("> 成功获取: #{Time.at(key.crdtime).strftime("%F")} : #{_c}")
           key.crdtime += 1.days
           key.save
