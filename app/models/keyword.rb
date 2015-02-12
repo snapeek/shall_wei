@@ -3,6 +3,7 @@ require 'csv'
 class Keyword
   include Mongoid::Document
   field :content          , :type => String
+  field :s_content        , :type => String
   field :starttime        , :type => Integer, :default => (Time.now.at_beginning_of_day - 30.days).to_i
   field :crdtime          , :type => Integer, :default => (Time.now.at_beginning_of_day - 30.days).to_i
   field :endtime          , :type => Integer, :default => (Time.now.at_beginning_of_day - 1.days).to_i

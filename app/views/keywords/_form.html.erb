@@ -16,6 +16,10 @@
     <%= f.text_field :content %>
   </div>
   <div class="field">
+    <%= f.label :s_content %><br>
+    <%= f.text_field :s_content %>
+  </div>
+  <div class="field">
     <%= f.label :starttime %><br>
     <%= f.date_field :starttime, value: st(@keyword.starttime) %>
   </div>
