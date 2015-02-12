@@ -154,7 +154,7 @@ class KeywordsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def keyword_params
-    permited_params = params.require(:keyword).permit(:content, :starttime, :endtime, :day_count)
+    permited_params = params.require(:keyword).permit(:content, :s_content, :starttime, :endtime, :day_count)
     permited_params["starttime"] = Time.parse(permited_params["starttime"]).to_i
     permited_params["crdtime"]   = permited_params["starttime"]
     permited_params["endtime"]   = Time.parse(permited_params["endtime"]).to_i

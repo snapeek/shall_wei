@@ -39,7 +39,7 @@ module BaiduUtils
           end
           @news_spider.reset
           @news_spider.delay = 1
-          learn_news(URI.encode("《#{key.content}》"), bt: bt, et: bt + 1.days )
+          learn_news(URI.encode(key.s_content), bt: bt, et: bt + 1.days )
           @news_spider.crawl
         end
 
