@@ -53,7 +53,7 @@ class Keyword
   end
 
   def weibo_to_csv
-    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
+    CSV.open("tmp/csv/#{content}-微博列表-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["用户名", "内容", "发表时间", "转载数", "博主粉丝数", "博主关注数", "关注品牌媒体"]
       weibos.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count,w.weibo_user.fans_count, w.weibo_user.follow_count, 

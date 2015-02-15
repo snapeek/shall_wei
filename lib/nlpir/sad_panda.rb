@@ -109,9 +109,9 @@ module Nlpir
           return emo = emo * 1.1
         end
       when 25, 20
-        return emo = (-emo.abs - 0.5) * 1.2
+        return emo = (- emo.abs - 0.5) * 1.2
       when 15, 10
-        return emo = (-emo.abs - 1) * 1.5
+        return emo = (- emo.abs - 1) * 1.5
       else
         return emo
       end
