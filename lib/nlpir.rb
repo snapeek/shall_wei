@@ -33,7 +33,7 @@ module Nlpir
       end
 
       def init_nlpir
-        nlpir_init(File.expand_path("../../", __FILE__), UTF8_CODE)
+        nlpir_init(File.expand_path("../", __FILE__), UTF8_CODE)
       end      
 
       def latest
