@@ -1,4 +1,4 @@
-require 'lib/nlpir'
+require File.expand_path("../../../lib/nlpir", __FILE__)
 class Weibo
   include Mongoid::Document
   Nlpir::Mongoid.included self
