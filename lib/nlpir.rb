@@ -10,7 +10,6 @@ $sad_panda ||= Nlpir::SadPanda.new
 
 module Nlpir
   module Mongoid
-
     module ClassMethods
       case HOST_OS
       when /darwin/i

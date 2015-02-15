@@ -1,5 +1,6 @@
 class Weibo
   include Mongoid::Document
+  Nlpir::Mongoid.included self
 
   field :wid,            :type => String
   field :content,        :type => String
