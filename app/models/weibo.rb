@@ -1,3 +1,4 @@
+require 'lib/nlpir'
 class Weibo
   include Mongoid::Document
   Nlpir::Mongoid.included self
