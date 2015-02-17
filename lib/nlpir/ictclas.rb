@@ -150,6 +150,7 @@ module Nlpir
     def NLPIR_Init(sInitDirPath=nil , encoding=UTF8_CODE)
       sInitDirPath += "/Data/"
       if File.exist?(sInitDirPath)==false
+        p "copy file #{filemother} => #{sInitDirPath}"
         FileUtils.mkdir(sInitDirPath)
         filemother = File.expand_path("../data/", __FILE__)
         FileUtils.copy_entry filemother, sInitDirPath
