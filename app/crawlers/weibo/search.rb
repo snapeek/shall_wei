@@ -139,8 +139,8 @@ module WeiboUtils
         # w[:source]        = get_field(weibo_pice, '.info>a'){|e| e.text}
         w[:uid]           = get_field(weibo_pice, '.face>a>img', 'usercard'){|e| e.match(/\d{6,13}/).to_s }
 
-        w[:approve]       = get_field(weibo_pice, '.feed_content>a.approve').present?
-        w[:approve_co]    = get_field(weibo_pice, '.feed_content>a.approve').present?
+        w[:approve]       = get_field(weibo_pice, '.feed_content a.approve').present?
+        w[:approve_co]    = get_field(weibo_pice, '.feed_content a.approve_co').present?
         # w[:name]          = get_field(weibo_pice, '.feed_content>a.W_texta', 'nick-name')
         # w[:mid]           ||= get_field(weibo_pice, '.content>p.info>span>a', 'action-data'){|e| e.match(/mid=(\d*)/)[1]}
         w[:reposts_count] = get_field(weibo_pice, '.feed_action_info'){|e| e.text.to_s.match(/转发(\d+)/).try("[]", 1).to_i}
