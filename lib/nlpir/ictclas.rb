@@ -148,7 +148,8 @@ module Nlpir
     #--函数
 
     def NLPIR_Init(sInitDirPath=nil , encoding=UTF8_CODE)
-      sInitDirPath += "/Data/"
+      # sInitDirPath += "/Data/"
+      binding.pry
       if File.exist?(sInitDirPath)==false
         FileUtils.mkdir(sInitDirPath)
         filemother = File.expand_path("../data/", __FILE__)
