@@ -9,11 +9,14 @@ class Keyword
   field :endtime          , :type => Integer, :default => (Time.now.at_beginning_of_day - 1.days).to_i
   field :day_count        , :type => Hash,    :default => {}
   field :news_day_count   , :type => Hash,    :default => {}
-  
+  field :is_deleted       , :type => Boolean, :default => false
+
   has_many :kibers
   has_and_belongs_to_many :weibos
   has_and_belongs_to_many :weibo_users
   has_many :baidu_news
+
+
 
   def get_kiber(st, ac)
     kibers.where(:kid => "#{st}-#{ac}").first

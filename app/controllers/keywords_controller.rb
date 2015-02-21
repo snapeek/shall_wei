@@ -4,7 +4,11 @@ class KeywordsController < ApplicationController
   # GET /keywords
   # GET /keywords.json
   def index
-    @keywords = Keyword.all
+    if params[:all]
+      @keywords = Keyword.all
+    else
+      @keywords = Keyword.where(:is_deleted => false)
+    end
   end
 
   # GET /keywords/1
