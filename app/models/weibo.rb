@@ -22,6 +22,8 @@ class Weibo
   field :reposts_url            , :type => String # 转发 url
   field :creposts_count         , :type => Integer, :default => 0 # 转发数
   field :comments_count         , :type => Integer # 评论数
+  field :approve                , :type => Boolean, :default => false # 个人认证
+  field :approve_co             , :type => Boolean, :default => false # 商业认证
   
   field :url,                     :type => String
 

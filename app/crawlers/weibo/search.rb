@@ -118,10 +118,10 @@ module WeiboUtils
           @keyword.save
           u.save
           if u.crawl_status & 2 != 2
-            userinfo(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的用户信息采集错误.")
+            # userinfo(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的用户信息采集错误.")
           end
           if u.crawl_status & 4 != 4
-            follower(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的关注信息采集错误. ")
+            # follower(w[:uid]) rescue logger.fatal("> 采集出错: 用户 #{u.name} 的关注信息采集错误. ")
           end
         end
       end
@@ -138,6 +138,9 @@ module WeiboUtils
         w[:created_at]    = get_field(weibo_pice, '.feed_from>.W_textb'){|e| Time.parse(e).to_i rescue 0}
         # w[:source]        = get_field(weibo_pice, '.info>a'){|e| e.text}
         w[:uid]           = get_field(weibo_pice, '.face>a>img', 'usercard'){|e| e.match(/\d{6,13}/).to_s }
+
+        w[:approve]       = get_field(weibo_pice, '.feed_content>a.approve').present?
+        w[:approve_co]    = get_field(weibo_pice, '.feed_content>a.approve').present?
         # w[:name]          = get_field(weibo_pice, '.feed_content>a.W_texta', 'nick-name')
         # w[:mid]           ||= get_field(weibo_pice, '.content>p.info>span>a', 'action-data'){|e| e.match(/mid=(\d*)/)[1]}
         w[:reposts_count] = get_field(weibo_pice, '.feed_action_info'){|e| e.text.to_s.match(/转发(\d+)/).try("[]", 1).to_i}

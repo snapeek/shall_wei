@@ -27,7 +27,7 @@ module Nlpir
 
     #提取链接库接口
     libm = Fiddle.dlopen(File.expand_path("../../../bin/libNLPIR.so", __FILE__))
-    p libm
+
     NLPIR_Init_rb = Fiddle::Function.new(
       libm['NLPIR_Init'],
       [Fiddle::TYPE_VOIDP,Fiddle::TYPE_INT],
