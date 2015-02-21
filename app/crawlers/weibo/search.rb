@@ -77,7 +77,7 @@ module WeiboUtils
           options[:weibo_now_count] = result[:weibos].count
           save_status(options)
           save_weibos(result[:weibos])
-          break unless get_field(weibos_pice, ".W_pages").text.try('include?',"下一页")
+          break unless get_field(weibos_pice, ".W_pages"){ |a| a.text.try('include?',"下一页")}
         end
       rescue Exception => err
         # binding.pry

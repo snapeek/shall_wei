@@ -15,7 +15,7 @@ class WeiboSearchWorker
         page: k.page , 
         starttime: starttime, 
         endtime: endtime, 
-        xsort: false, 
+        xsort: true, 
         ori: true,
         kid: kid)
       k.crdtime += k.gap.hours
