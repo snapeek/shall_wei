@@ -60,6 +60,10 @@ module BaiduUtils
             "&y1=#{options[:y1]}&m1=#{options[:m1]}&d1=#{options[:d1]}&et=#{options[:et]}&" +
             "q1=#{keyword}&submit=%B0%D9%B6%C8%D2%BB%CF%C2&q3=&q4=&mt=0&lm=&s=2&begin_date=#{options[:bts]}&end_date=#{options[:ets]}&tn=newsdy&ct1=1&ct=1&rn=20&q6=")
 
+            field :body, "body" do |nb|
+              binding.pry
+            end
+
             field :day_count, "#header_top_bar .nums" do |nums|
               nums.native.text.match(/\d+/).to_s.to_i
             end

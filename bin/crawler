@@ -24,6 +24,18 @@ def set_delay(_d)
   weibo.delay_times = _d 
 end
 
+def s(key_id)
+  kw = Keyword.find key_id
+  k = kw.kibers.create(
+    starttime: kw.starttime,
+    crdtime: kw.starttime,
+    endtime: kw.endtime,
+    gap: 48
+  )
+  # binding.pry
+  search k.id
+end
+
 def search(kid)
   k = Kiber.find(kid)
   while true
@@ -35,7 +47,7 @@ def search(kid)
       page: k.page , 
       starttime: starttime, 
       endtime: endtime, 
-      xsort: false, 
+      xsort: true, 
       ori: true,
       kid: kid)
     k.crdtime += k.gap.hours

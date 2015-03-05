@@ -26,7 +26,18 @@ class Keyword
     baidu_news_to_csv
     day_count_to_csv
     weibo_to_csv
-    repost_to_scv
+    repost_to_csv
+  end
+
+  def w_to_csv
+    CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
+      csv << ["用户名", "内容", "发表时间", "转载数", "个人认证", "商业认证", ""]
+      weibos.each do |w|
+        csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count, w.approve, w.approve_co]
+      end
+
+    end
+    
   end
 
   def baidu_news_to_csv
@@ -65,9 +76,10 @@ class Keyword
     end
   end
 
-  def repost_to_scv
-    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb", encoding: "GBK") do |csv|
-      weibos.hot.each do |w|
+  def repost_to_csv(mid = nil)
+    CSV.open("tmp/csv/#{content}-微博转发路径-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
+      _ws = mid.blank? ? weibos.hot : [Weibo.find_by(:mid => mid)]
+      _ws.each do |w|
         csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count]
           w.reposts.each do |ww|
           csv << ['',ww.user_name, ww.content, Time.at(ww.created_at), ww.reposts_count]
@@ -79,6 +91,18 @@ class Keyword
                 csv << ['','','','',wwwww.user_name, wwwww.content, Time.at(wwwww.created_at), wwwww.reposts_count]
                 wwwww.reposts.each do |wwwwww|
                   csv << ['','','','','',wwwwww.user_name, wwwwww.content, Time.at(wwwwww.created_at), wwwwww.reposts_count]
+                  wwwwww.reposts.each do |wwwwwww|
+                    csv << ['','','','','',wwwwwww.user_name, wwwwwww.content, Time.at(wwwwwww.created_at), wwwwwww.reposts_count]
+                    wwwwwww.reposts.each do |wwwwwwww|
+                      csv << ['','','','','',wwwwwwww.user_name, wwwwwwww.content, Time.at(wwwwwwww.created_at), wwwwwwww.reposts_count]
+                      wwwwwwww.reposts.each do |wwwwwwwww|
+                        csv << ['','','','','',wwwwwwwww.user_name, wwwwwwwww.content, Time.at(wwwwwwwww.created_at), wwwwwwwww.reposts_count]
+                        wwwwwwwww.reposts.each do |wwwwwwwwww|
+                          csv << ['','','','','',wwwwwwwwww.user_name, wwwwwwwwww.content, Time.at(wwwwwwwwww.created_at), wwwwwwwwww.reposts_count]
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end

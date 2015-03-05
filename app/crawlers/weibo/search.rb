@@ -69,7 +69,9 @@ module WeiboUtils
           search_page = get_with_login("http://s.weibo.com/wb/#{options[:keyword]}?page=#{current_page}#{params}&Refer=g")
           # weibos_pice = get_script_html(search_page, "pl_weibo_direct")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
-          result[:total_num] ||= get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+          binding.pry if weibos_pice.blank?
+          result[:total_num] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
           # options[:total_num] ||= result[:total_num]
           break if result[:total_num].to_i == 0
           # result[:weibos] += get_fields(weibos_pice, '.search_feed feed_lists') {|weibo_pice| get_weibo(weibo_pice) }
@@ -135,7 +137,7 @@ module WeiboUtils
         w[:mid]           = get_field(weibo_pice, '.feed_from .W_textb', 'suda-data').match(/:(\d+)/).try('[]', 1)
         w[:content]       = get_field(weibo_pice, '.comment_txt'){ |e| e.text.gsub(/[\t\n]/,'')}
         w[:user_name]     = get_field(weibo_pice, '.face>a', 'title')
-        w[:created_at]    = get_field(weibo_pice, '.feed_from>.W_textb'){|e| Time.parse(e).to_i rescue 0}
+        w[:created_at]    = get_field(weibo_pice, '.feed_from>.W_textb'){|e| Time.parse(e.attr('title')).to_i rescue 0}
         # w[:source]        = get_field(weibo_pice, '.info>a'){|e| e.text}
         w[:uid]           = get_field(weibo_pice, '.face>a>img', 'usercard'){|e| e.match(/\d{6,13}/).to_s }
 
