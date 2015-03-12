@@ -66,7 +66,7 @@ module WeiboUtils
           options[:page] = current_page
           result[:weibos].clear
           logger.info "> 搜索结果: 第 #{current_page} 页,"
-          search_page = get_with_login("http://s.weibo.com/wb/#{options[:keyword]}?page=#{current_page}#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=#{current_page}#{params}&Refer=g")
           # weibos_pice = get_script_html(search_page, "pl_weibo_direct")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?

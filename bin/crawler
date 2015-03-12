@@ -36,6 +36,11 @@ def s(key_id)
   search k.id
 end
 
+def c(key_id)
+  k = Keyword.find(key_id).kibers.first
+  search k.id
+end
+
 def search(kid)
   k = Kiber.find(kid)
   while true

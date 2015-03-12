@@ -87,12 +87,16 @@ class WeiboCrawl
     weibos_spider.get_with_login(url, is_ajax)
   end
 
+  def get_with_login2(url, is_ajax = false)
+    weibos_spider.get_with_login2(url, is_ajax)
+  end
+
   def jget(url)
     weibos_spider.jget(url)
   end
 
   def weibos_spider
-    @current_weibo_spider = @weibos_spiders.shuffle.first
+    @current_weibo_spider = @weibos_spiders.sample
   end
 
   def account

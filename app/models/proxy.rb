@@ -54,7 +54,7 @@ class Proxy
   def self.get_from_dl
     http_client = Mechanize.new
     # url = "http://tiqu.daili666.com/ip/?tid=558226031849865&num=20&area=北京&filter=on"
-    url = "http://www.kuaidaili.com/api/getproxy/?orderid=922520892154211&num=30&area=%E4%B8%AD%E5%9B%BD&browser=1&protocol=1&method=1&an_ha=1&sp1=1&sort=1&sep=4"
+    url = "http://www.kuaidaili.com/api/getproxy/?orderid=902587926588664&num=30&area=%E4%B8%AD%E5%9B%BD&browser=1&protocol=1&method=1&an_ha=1&sp1=1&sp2=1&sort=0&format=text&sep=4"
     http_client.get(url) do |page|
       proxies = page.body.split('|')
       proxies.each do |prp|

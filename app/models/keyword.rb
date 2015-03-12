@@ -31,13 +31,12 @@ class Keyword
 
   def w_to_csv
     CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
-      csv << ["用户名", "内容", "发表时间", "转载数", "个人认证", "商业认证", ""]
+      csv << ["用户名", "内容", "发表时间", "月", "天", "小时","转载数", "个人认证", "商业认证", ""]
       weibos.each do |w|
-        csv << [w.user_name, w.content, Time.at(w.created_at), w.reposts_count, w.approve, w.approve_co]
+        tt = Time.at(w.created_at)
+        csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, w.approve, w.approve_co]
       end
-
     end
-    
   end
 
   def baidu_news_to_csv

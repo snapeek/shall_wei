@@ -35,6 +35,37 @@ module WeiboUtils
       return page
     end
 
+    def get_with_login2(url, is_ajax = false)
+      delay
+      ensure_use_count
+      page = @weibos_spider.get(url)
+      return page if is_ajax && page.is_a?(Mechanize::File)
+    rescue SystemExit, Interrupt
+      ensure_use_logout
+      logger.fatal("SystemExit && Interrupt")
+      print "确定要退出吗?(y/n) "
+      exit! if gets.include?('y')
+    rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT, Net::HTTP::Persistent::Error, 
+      Net::HTTPNotImplemented, Net::HTTPBadGateway
+      if @retry_time >= 3
+        logger.fatal("> 更换代理: HttpError.")
+        @retry_time = 0
+        xproxy
+      retry
+        logger.fatal("> 重试连接: HttpError.")
+        @retry_time += 1
+      end
+      retry
+    rescue Exception => e
+      ensure_use_logout
+      logger.fatal("HtmlError:")
+      # binding.pry
+      logger.fatal(page.search("body").text)
+    ensure
+      @retry_time = 0
+      return page
+    end
+
     def jget(url)
       delay
       page = @weibos_spider.get(url)
