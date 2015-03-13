@@ -19,6 +19,8 @@ class Weibo
   field :user                   , :type => Hash #  微博作者的用户信息字段 详细
   field :retweeted_status       , :type => Hash #  被转发的原微博信息字段，当该微博为转发微博时返回 详细
   field :reposts_count          , :type => Integer # 转发数
+  field :comments_count         , :type => Integer # 转发数
+  field :ups_count              , :type => Integer # 转发数
   field :reposts_url            , :type => String # 转发 url
   field :creposts_count         , :type => Integer, :default => 0 # 转发数
   field :comments_count         , :type => Integer # 评论数

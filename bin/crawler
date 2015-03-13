@@ -30,7 +30,7 @@ def s(key_id)
     starttime: kw.starttime,
     crdtime: kw.starttime,
     endtime: kw.endtime,
-    gap: 48
+    gap: 120
   )
   # binding.pry
   search k.id
@@ -60,6 +60,25 @@ def search(kid)
   end
   k.status = k.status | 4
   k.save
+end
+
+def search_all_count(keywords = nil)
+  tt = Time.parse('2014-12-10')
+  ts = Time.parse('2015-1-2')
+  keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
+  CSV.open("tmp/csv/微博提及_#{Time.now.to_i}.csv", "wb") do |csv|
+    csv << ["电影","提及总数", "原创数", "转发数"]
+    i = 0
+    keywords.each do |k|
+      next if (i+=1) < 18
+      r = weibo.all_count(
+        keyword: k.content, 
+        starttime: k.starttime,
+        endtime: k.endtime
+      )
+      csv << [k.content,r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
+    end
+  end
 end
 
 def news(key_id)

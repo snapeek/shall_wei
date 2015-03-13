@@ -62,7 +62,7 @@ module WeiboUtils
         params = biuld_params(options)
         logger.info("> 搜索结果: 当前关键字为#{options[:keyword]}, 其余参数为 #{params}")
         options[:now_count] = 0
-        options[:page].upto(50) do |current_page|
+        options[:page].upto(12) do |current_page|
           options[:page] = current_page
           result[:weibos].clear
           logger.info "> 搜索结果: 第 #{current_page} 页,"
@@ -70,7 +70,14 @@ module WeiboUtils
           # weibos_pice = get_script_html(search_page, "pl_weibo_direct")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
-          binding.pry if weibos_pice.blank?
+          ac = 0
+          while weibos_pice.blank? && ac < 3
+            ac += 1
+            @current_weibo_spider.xproxy
+            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=#{current_page}#{params}&Refer=g")
+            weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
+            weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+          end
           result[:total_num] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
           # options[:total_num] ||= result[:total_num]
           break if result[:total_num].to_i == 0
@@ -87,6 +94,47 @@ module WeiboUtils
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
         # save_status(options)
       ensure
+        return result
+      end
+
+
+        def all_count(options)
+          result = {}
+          options[:ori] = true
+          params = biuld_params(options)
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
+          weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+          ac = 0
+          while weibos_pice.blank? && ac < 3
+            ac += 1
+            @current_weibo_spider.xproxy
+            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+            weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
+            weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+          end
+          result[:total_num_ori] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+          options[:ori] = false
+          params = biuld_params(options)
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          ac = 0
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
+          weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+        while weibos_pice.blank? && ac < 3
+          ac += 1
+          @current_weibo_spider.xproxy
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
+          weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
+        end
+        result[:total_num_all] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
+        logger.info("> 搜索结果: #{result[:total_num_all]} ---- #{result[:total_num_ori]}")
+        return result
+      rescue Exception => err
+        logger.fatal("> 搜索出错: #{err}")
+        logger.fatal(err.backtrace.slice(0,5).join("\n"))
+        binding.pry
         return result
       end
       
@@ -146,6 +194,9 @@ module WeiboUtils
         # w[:name]          = get_field(weibo_pice, '.feed_content>a.W_texta', 'nick-name')
         # w[:mid]           ||= get_field(weibo_pice, '.content>p.info>span>a', 'action-data'){|e| e.match(/mid=(\d*)/)[1]}
         w[:reposts_count] = get_field(weibo_pice, '.feed_action_info'){|e| e.text.to_s.match(/转发(\d+)/).try("[]", 1).to_i}
+        w[:comments_count]= get_field(weibo_pice, '.feed_action_info'){|e| e.text.to_s.match(/评论(\d+)/).try("[]", 1).to_i}
+        w[:ups_count]     = get_field(weibo_pice, '.feed_action_info .line'){|e| e.text.to_i}
+
         w[:reposts_url]   = "/#{w[:uid]}/#{mid_to_str(w[:mid])}?type=repost"
       ensure
         return w

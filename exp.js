@@ -1,8 +1,8 @@
 javascript:($(function() {
 var exec = function(){
   window.dflag = true;
-  stk.attributealldata();
-  stk.keywordzone();
+  // stk.attributealldata();
+  // stk.keywordzone();
   stk.getchartdata();
 };
 if(typeof(stk) == "undefined") {
@@ -24,7 +24,7 @@ STK.register("comp.hotfeed", function(stk) {
     stk.core.io.ajax(
       {
         url:"/index/ajax/getchartdata",
-        args:{month:6},
+        args:{month:12},
         method:"get",
         onComplete:function (an) {
           var zt_str = "";
@@ -40,10 +40,11 @@ STK.register("comp.hotfeed", function(stk) {
   }
 
   var keywordzone = function(){
+    // document.cookie.match(/ALF=(\d+)/)[1]
     stk.core.io.ajax(
       {
         url:"/index/ajax/keywordzone",
-        args:{type:"default",wid:document.cookie.match(/ALF=(\d+)/)[1]},
+        args:{type:"default",wid:"4uKh7Yhbwn7o"},
         method:"get",
         onComplete:function(an) {
           // console.log(an);
