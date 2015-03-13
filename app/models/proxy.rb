@@ -60,7 +60,11 @@ class Proxy
       proxies.each do |prp|
         prp = prp.split(',')[0] # only kuaidaili
         pr = prp.split(':')
-        ::Proxy.find_or_create_by(ip: pr[0], port: pr[1])
+        if pr[1].match(/^\d+$/)
+          ::Proxy.find_or_create_by(ip: pr[0], port: pr[1])
+        else
+          sleep(20)
+        end
       end
     end
   end
