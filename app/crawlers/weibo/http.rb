@@ -1,3 +1,4 @@
+require 'timeout'
 module WeiboUtils
   module Http
 
@@ -36,15 +37,22 @@ module WeiboUtils
     end
 
     def http_get(url)
-      Timeout::timeout(@timeout) { @weibos_spider.get(url) }
-    rescue Timeout::Error => err
-      logger.fatal('Timeout!!! execution expired when execute action')
-      logger.fatal(err.message)
-      logger.fatal(err.backtrace.inspect)
       redo_times = 0
-      # redo if redo_times += 1 < 3
-      xproxy
-      # redo if redo_times += 1 < 6
+      @wspage = nil
+      while(redo_times < 6 || @wspage == nil)
+        begin
+          @wspage = Timeout::timeout(@timeout) { @weibos_spider.get(url) }
+          break if @wspage
+        rescue Timeout::Error => err
+          logger.fatal('Timeout!!! execution expired when execute action')
+          logger.fatal(err.message)
+          logger.fatal(err.backtrace.inspect)
+          redo_times += 1
+          next if redo_times  < 3
+          xproxy
+        end
+      end
+      @wspage
     end
 
     def get_with_login2(url, is_ajax = false)
