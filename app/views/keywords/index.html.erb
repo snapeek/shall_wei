@@ -13,7 +13,7 @@
   <tbody>
     <% @keywords.each do |keyword| %>
       <tr>
-        <td><%= keyword.content %></td>
+        <td><%= keyword.content %>(<%= keyword.weibos.count %>)</td>
         <td><%= st(keyword.starttime) %></td>
         <td><%= st(keyword.endtime) %></td>
         <td><%= link_to '微博搜索结果', keyword %></td>
