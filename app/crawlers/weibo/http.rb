@@ -5,7 +5,7 @@ module WeiboUtils
     def get_with_login(url, is_ajax = false)
       delay
       ensure_use_count
-      page = http_get(url)
+      page = @weibos_spider.get(url)
       return page if is_ajax && page.is_a?(Mechanize::File)
       page = ensure_not_captcha_page(page)
       # page = ensure_not_relogin_page(page)
@@ -36,7 +36,7 @@ module WeiboUtils
       return page
     end
 
-    def http_get(url)
+    def @weibos_spider.get(url)
       redo_times = 0
       @wspage = nil
       while(redo_times < 6 || @wspage == nil)
@@ -58,7 +58,7 @@ module WeiboUtils
     def get_with_login2(url, is_ajax = false)
       delay
       ensure_use_count
-      page = http_get(url)
+      page = @weibos_spider.get(url)
       return page if is_ajax && page.is_a?(Mechanize::File)
     rescue SystemExit, Interrupt
       ensure_use_logout
@@ -88,7 +88,7 @@ module WeiboUtils
 
     def jget(url)
       delay
-      page = http_get(url)
+      page = @weibos_spider.get(url)
     rescue SystemExit, Interrupt
       logger.fatal("SystemExit && Interrupt")
       print "确定要退出吗?(y/n) "
@@ -126,7 +126,7 @@ module WeiboUtils
       pcurl = "http://s.weibo.com/ajax/pincode/pin?type=sass&amp;ts=#{Time.now.to_i}"
       cap = Captcha.create
       file_name = cap.id.to_s
-      http_get(pcurl).save_as("./public/captchas/#{file_name}.png")
+      @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
       @x_captcha = input_captcha(cap)
     ensure
       cap.destroy
@@ -143,7 +143,7 @@ module WeiboUtils
         ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
         ret = JSON.parse(ret.body)
         if ret["code"] == "100000"
-          return http_get(page_uri)
+          return @weibos_spider.get(page_uri)
         else
           return ensure_not_captcha_page(page)
         end

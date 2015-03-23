@@ -63,7 +63,7 @@ class WeiboCrawl
     @broken_paths = []
     @delay_times = 2..5
     @weibos_spiders = []
-    2.times { add_spider }
+    1.times { add_spider }
     @retry_time = 0
     @weibos_spiders.each_with_index{|ws, idx| ws.bak = @weibos_spiders[(-idx) - 1] }
     weibos_spider

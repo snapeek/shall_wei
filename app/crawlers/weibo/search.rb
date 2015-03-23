@@ -82,6 +82,7 @@ module WeiboUtils
           # options[:total_num] ||= result[:total_num]
           break if result[:total_num].to_i == 0
           # result[:weibos] += get_fields(weibos_pice, '.search_feed feed_lists') {|weibo_pice| get_weibo(weibo_pice) }
+
           result[:weibos] += get_fields(weibos_pice, '.search_feed>div>div>div.S_bg2') {|weibo_pice| get_weibo(weibo_pice) }
           options[:weibo_now_count] = result[:weibos].count
           save_status(options)
@@ -134,7 +135,6 @@ module WeiboUtils
       rescue Exception => err
         logger.fatal("> 搜索出错: #{err}")
         logger.fatal(err.backtrace.slice(0,5).join("\n"))
-        binding.pry
         return result
       end
       
@@ -161,8 +161,9 @@ module WeiboUtils
           u = WeiboUser.find_or_create_by(:wid => w[:uid])
           u.crawl_status = 1 unless u.crawl_status > 0 
           u.name ||= w[:user_name]
-          ww = @keyword.weibos.find_or_create_by(:mid => w[:mid])
-          ww.update(w)
+          ww = @keyword.weibos.create(w)
+          # ww = @keyword.weibos.find_or_create_by(:mid => w[:mid])
+          # ww.update(w)
           u.weibos << ww
           @keyword.weibos << ww
           @keyword.save
