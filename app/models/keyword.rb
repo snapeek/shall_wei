@@ -59,23 +59,26 @@ class Keyword
   end
 
 
-  def w3_to_csv
-    CSV.open("tmp/csv/#{content}-微博-cctv6结果.csv", "wb") do |csv|
+  def self.w3_to_csv
+    CSV.open("tmp/csv/微博-cctv6结果.csv", "wb") do |csv|
       csv << ["关键词", "帖子总量", "总转载数", "总评论数" , "总点赞数", "ln count", "转载", "评论", "点赞", "结果"]
-      reposts_count = comments_count = ups_count = 0
-      reposts_count_2 = comments_count_2 = ups_count_2 =0
-      weibos.each do |w|
-        tt = Time.at(w.created_at)
-        reposts_count += w.reposts_count
-        comments_count += w.comments_count
-        ups_count += w.ups_count
-        reposts_count_2 += w.reposts_count * w.reposts_count
-        comments_count_2 += w.comments_count * w.comments_count
-        ups_count_2 += w.ups_count * w.ups_count
+      Keyword.where(:is_deleted => false).each do |k|
+        weibos = k.weibos
+        reposts_count = comments_count = ups_count = 0
+        reposts_count_2 = comments_count_2 = ups_count_2 =0
+        weibos.each do |w|
+          tt = Time.at(w.created_at)
+          reposts_count += w.reposts_count
+          comments_count += w.comments_count
+          ups_count += w.ups_count
+          reposts_count_2 += w.reposts_count * w.reposts_count
+          comments_count_2 += w.comments_count * w.comments_count
+          ups_count_2 += w.ups_count * w.ups_count
+        end
+          csv << [k.content, weibos.count, reposts_count , comments_count, ups_count,
+            Math.log10(weibos.count), Math.sqrt(reposts_count_2/weibos.count), Math.sqrt(comments_count_2/weibos.count), Math.sqrt(ups_count_2/weibos.count),
+            Math.log10(weibos.count) * (Math.sqrt(reposts_count_2/weibos.count) + Math.sqrt(comments_count_2/weibos.count) + Math.sqrt(ups_count_2/weibos.count)) / 3.0]
       end
-        csv << [content, weibos.count, reposts_count , comments_count, ups_count,
-          Math.log10(weibos.count), Math.sqrt(reposts_count_2/weibos.count), Math.sqrt(comments_count_2/weibos.count), Math.sqrt(ups_count_2/weibos.count),
-          Math.log10(weibos.count) * (Math.sqrt(reposts_count_2/weibos.count) + Math.sqrt(comments_count_2/weibos.count) + Math.sqrt(ups_count_2/weibos.count)) / 3.0]
     end
   end
 
