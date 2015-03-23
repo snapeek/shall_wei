@@ -38,12 +38,23 @@ class Keyword
   end
 
   def w2_to_csv
-    CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
-      csv << ["用户名", "内容", "发表时间", "转载数", "评论数"]
+    CSV.open("tmp/csv/#{content}-微博-cctv6.csv", "wb") do |csv|
+      csv << ["用户名", "内容", "发表时间", "转载数", "评论数", "点赞数"]
+      reposts_count = comments_count = ups_count = 0
+      reposts_count_2 = comments_count_2 = ups_count_2 =0
       weibos.each do |w|
         tt = Time.at(w.created_at)
-        csv << [w.user_name, w.content, tt.strftime("%F %T") , w.reposts_count, w.comments_count]
+        csv << [w.user_name, w.content, tt.strftime("%F %T") , w.reposts_count, w.comments_count, w.ups_count]
+        reposts_count += w.reposts_count
+        comments_count += w.comments_count
+        ups_count += w.ups_count
+        reposts_count_2 += w.reposts_count * w.reposts_count
+        comments_count_2 += w.comments_count * w.comments_count
+        ups_count_2 += w.ups_count * w.ups_count
       end
+        csv << ["关键词", "帖子总量", "总转载数", "总评论数" , "总点赞数", "结果"]
+        csv << [content, weibos.count, reposts_count , comments_count, ups_count, 
+          Math.log10(weibos.count) * (Math.sqrt(reposts_count_2/weibos.count) + Math.sqrt(comments_count_2/weibos.count) + Math.sqrt(ups_count_2/weibos.count)) / 3.0]
     end
   end
 
