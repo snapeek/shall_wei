@@ -27,10 +27,10 @@ end
 def s(key_id)
   kw = Keyword.find key_id
   k = kw.kibers.create(
-    starttime: kw.starttime,
-    crdtime: kw.starttime,
-    endtime: kw.endtime,
-    gap: 96
+    starttime: kw.starttime + 20.hours,
+    crdtime: kw.starttime + 20.hours,
+    endtime: kw.endtime + 20.hours,
+    gap: 24
   )
   # binding.pry
   search k.id
