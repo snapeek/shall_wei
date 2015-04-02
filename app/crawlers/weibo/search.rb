@@ -62,7 +62,7 @@ module WeiboUtils
         params = biuld_params(options)
         logger.info("> 搜索结果: 当前关键字为#{options[:keyword]}, 其余参数为 #{params}")
         options[:now_count] = 0
-        options[:page].upto(30) do |current_page|
+        options[:page].upto(12) do |current_page|
           options[:page] = current_page
           result[:weibos].clear
           logger.info "> 搜索结果: 第 #{current_page} 页,"
