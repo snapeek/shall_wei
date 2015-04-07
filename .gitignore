@@ -13,6 +13,7 @@
 
 # minimal Rails specific artifacts
 /log/*
+/db/*
 /tmp/*
 /public/captchas*
 
