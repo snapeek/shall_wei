@@ -30,7 +30,7 @@ def s(key_id)
     starttime: kw.starttime + 20.hours,
     crdtime: kw.starttime + 20.hours,
     endtime: kw.endtime + 20.hours,
-    gap: 24
+    gap: 96
   )
   # binding.pry
   search k.id
