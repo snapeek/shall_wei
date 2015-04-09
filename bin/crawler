@@ -26,17 +26,20 @@ end
 
 def s(key_id, ns = 1)
   kw = Keyword.find key_id
+  k = nil
   ns.times do |n|
-    ttt = (kw.endtime - kw.starttime) / n
+    ttt = (kw.endtime - kw.starttime) / ns
+    p (ttt*n)
     k = kw.kibers.create(
       starttime: kw.starttime + 20.hours + ttt*n,
       crdtime: kw.starttime + 20.hours + ttt*n,
-      endtime: kw.starttime + 20.hours + ttt*n+1,
+      endtime: kw.starttime + 20.hours + ttt*(n+1),
       gap: 64
     )
+    p k.id
   end
+  # search k.id
   # binding.pry
-  search k.id
 end
 
 def c(key_id)
