@@ -47,7 +47,7 @@ def ss(key_id)
   k = kw.kibers.create(
     starttime: kw.starttime + 20.hours ,
     crdtime: kw.starttime + 20.hours,
-    endtime: kw.starttime + 20.hours,
+    endtime: kw.endtime + 20.hours,
     gap: 120
   )
   search k.id
