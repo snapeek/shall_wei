@@ -42,6 +42,17 @@ def s(key_id, ns = 1)
   # binding.pry
 end
 
+def ss(key_id)
+  kw = Keyword.find key_id
+  k = kw.kibers.create(
+    starttime: kw.starttime + 20.hours ,
+    crdtime: kw.starttime + 20.hours,
+    endtime: kw.starttime + 20.hours,
+    gap: 120
+  )
+  search k.id
+end
+
 def cc(kid)
   search kid
 end
