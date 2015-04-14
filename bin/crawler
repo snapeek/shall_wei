@@ -34,7 +34,7 @@ def s(key_id, ns = 1)
       starttime: kw.starttime + 20.hours + ttt*n,
       crdtime: kw.starttime + 20.hours + ttt*n,
       endtime: kw.starttime + 20.hours + ttt*(n+1),
-      gap: 120
+      gap: 72
     )
     p k.id
   end
