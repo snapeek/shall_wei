@@ -10,6 +10,7 @@ class Keyword
   field :day_count        , :type => Hash,    :default => {}
   field :news_day_count   , :type => Hash,    :default => {}
   field :is_deleted       , :type => Boolean, :default => false
+  field :tags             , :type => Array,   :default => []
 
   has_many :kibers
   has_and_belongs_to_many :weibos
