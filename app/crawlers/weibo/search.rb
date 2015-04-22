@@ -114,6 +114,7 @@ module WeiboUtils
             weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
             weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
           end
+          binding.pry
           result[:total_num_ori] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
           options[:ori] = false
           params = biuld_params(options)
