@@ -107,16 +107,18 @@ def search_every_day_count(key_id = nil)
   ts = Time.parse('2015-4-1')
   k = Keyword.find(key_id)
   # keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
-  keywords ||= Keyword.where(:is_deleted => false)
-  CSV.open("tmp/csv/微博提及_#{keyword}_#{Time.now.to_i}.csv", "wb") do |csv|
+  # keywords ||= Keyword.where(:is_deleted => false)
+  CSV.open("tmp/csv/微博提及_#{ k.content}_#{Time.now.to_i}.csv", "wb") do |csv|
     csv << ["日期","提及总数", "原创数", "转发数"]
     tc = (ts - tt) / 86400
-    tc.times do |tn|
+    tc.to_i.times do |tn|
       r = weibo.all_count(
         keyword: k.content, 
         starttime: k.starttime + tn.days,
         endtime: k.starttime + (tn + 1).days
       )
+      k.day_count = r[:total_num_all]
+      k.ori_day_count = r[:total_num_ori]
       csv << [Time.at(k.starttime + tn.days).strftime("%F"),r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
     end
   end

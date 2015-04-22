@@ -8,6 +8,7 @@ class Keyword
   field :crdtime          , :type => Integer, :default => (Time.now.at_beginning_of_day - 360.days).to_i
   field :endtime          , :type => Integer, :default => (Time.now.at_beginning_of_day - 1.days).to_i
   field :day_count        , :type => Hash,    :default => {}
+  field :ori_day_count    , :type => Hash,    :default => {}
   field :news_day_count   , :type => Hash,    :default => {}
   field :is_deleted       , :type => Boolean, :default => false
   field :tags             , :type => Array,   :default => []
