@@ -86,12 +86,12 @@ end
 def search_all_count(keywords = nil)
   tt = Time.parse('2015-1-1')
   ts = Time.parse('2015-4-14')
-  keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
+  # keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
+  keywords ||= Keyword.where(:is_deleted => false)
   CSV.open("tmp/csv/微博提及_#{Time.now.to_i}.csv", "wb") do |csv|
     csv << ["电影","提及总数", "原创数", "转发数"]
     i = 0
     keywords.each do |k|
-      next if (i+=1) < 18
       r = weibo.all_count(
         keyword: k.content, 
         starttime: k.starttime,
