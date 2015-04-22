@@ -24,7 +24,7 @@ module WeiboUtils
           options_buffer += "&xsort=hot"
         end
         if options[:starttime]
-          options_buffer += "&timescope=custom:#{options[:starttime]}:#{options[:endtime]}"
+          options_buffer += "&timescope=custom:#{Time.at(options[:starttime]).strftime("%F-%H")}:#{Time.at(options[:endtime]).strftime("%F-%H")}"
         end      
         # if options[:searchtype]
         #   case options[:searchtype]
@@ -66,7 +66,7 @@ module WeiboUtils
           options[:page] = current_page
           result[:weibos].clear
           logger.info "> 搜索结果: 第 #{current_page} 页,"
-          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=#{current_page}#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=#{current_page}#{params}&Refer=g")
           # weibos_pice = get_script_html(search_page, "pl_weibo_direct")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
@@ -74,7 +74,7 @@ module WeiboUtils
           while weibos_pice.blank? && ac < 3
             ac += 1
             @current_weibo_spider.xproxy
-            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=#{current_page}#{params}&Refer=g")
+            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=#{current_page}#{params}&Refer=g")
             weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
             weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
           end
@@ -103,14 +103,14 @@ module WeiboUtils
           result = {}
           options[:ori] = true
           params = biuld_params(options)
-          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=1#{params}&Refer=g")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
           ac = 0
           while weibos_pice.blank? && ac < 3
             ac += 1
             @current_weibo_spider.xproxy
-            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+            search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=1#{params}&Refer=g")
             weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
             weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
           end
@@ -118,15 +118,15 @@ module WeiboUtils
           result[:total_num_ori] = get_field(weibos_pice, ".search_num"){|e| e.text.to_s.match(/[\d?\,]+/).to_s.gsub(',','').to_i }
           options[:ori] = false
           params = biuld_params(options)
-          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=1#{params}&Refer=g")
           ac = 0
-          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=1#{params}&Refer=g")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
         while weibos_pice.blank? && ac < 3
           ac += 1
           @current_weibo_spider.xproxy
-          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}?page=1#{params}&Refer=g")
+          search_page = get_with_login("http://s.weibo.com/wb/#{URI.encode(options[:keyword])}&page=1#{params}&Refer=g")
           weibos_pice = get_script_html(search_page, "pl_wb_feedlist")
           weibos_pice = get_field(search_page, "#pl_wb_feedlist") if weibos_pice.blank?
         end
