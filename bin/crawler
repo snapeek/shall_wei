@@ -84,8 +84,8 @@ def search(kid)
 end
 
 def search_all_count(keywords = nil)
-  tt = Time.parse('2014-12-10')
-  ts = Time.parse('2015-1-2')
+  tt = Time.parse('2015-1-1')
+  ts = Time.parse('2015-4-14')
   keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
   CSV.open("tmp/csv/微博提及_#{Time.now.to_i}.csv", "wb") do |csv|
     csv << ["电影","提及总数", "原创数", "转发数"]
