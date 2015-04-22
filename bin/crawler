@@ -117,7 +117,7 @@ def search_every_day_count(key_id = nil)
         starttime: k.starttime + tn.days,
         endtime: k.starttime + (tn + 1).days
       )
-      csv << [Time.at(k.starttime + tn.days).strftime("%F",r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
+      csv << [Time.at(k.starttime + tn.days).strftime("%F"),r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
     end
   end
 end
