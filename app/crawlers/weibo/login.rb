@@ -160,7 +160,7 @@ module WeiboUtils
       end
 
       def input_captcha(cap)
-        puts "请输入验证码:"
+        puts "<请到页面输入验证码>"
         reload_count = 0
         while reload_count < 25
           if reload_count < 10

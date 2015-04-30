@@ -1,153 +1,154 @@
 #!/usr/bin/env ruby
+require 'colorize'
 
 require File.expand_path("../../app/crawlers/weibo_crawl", __FILE__)
 require File.expand_path("../../app/crawlers/oops_crawl", __FILE__)
 require File.expand_path("../../lib/nlpir", __FILE__)
-
+@kibers = {}
 @oops = OopsCrawl.new
 def weibo
   @weibo ||= WeiboCrawl.new
 end
 
-def login(username = nil, password = nil)
-  # username ||= "xzwyqy@163.com"
-  # password ||= "1991lamb"
-  @username = username if username
-  @password = password if password
-  if weibo.login 
-    opt = weibo.load_status
-    search(opt) if opt
+def list
+  Keyword.active.each_with_index{|k, i| puts "#{i}. #{k.content}"}
+end
+
+def new_keyword
+  print "请输入要搜索的关键字:\n>"
+  ct = gets.chomp
+  print "起始时间(YYYY-MM-DD):\n>"
+  st = gets.chomp
+  print "结束时间(YYYY-MM-DD):\n>"
+  et = gets.chomp
+  puts "请确定(Y/n)\n#{kw}\n#{st}\n#{et}\n"
+  kw = keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
+  search(kw)
+end
+
+def export
+  a = list
+  print "要导出哪一项(多个请用逗号分隔,全部导出输入'#{"a".colorize(:green)}')?\n>"
+  sl = gets.chomp
+  return a.each{|a| a.w_to_csv } if sl == "a"
+  sl.scan(/\d{1,2}/).each do |s|
+    a[s.to_i].try :w_to_csv
   end
+  print "导出完毕."
 end
 
-def set_delay(_d)
-  weibo.delay_times = _d 
-end
-
-def s(key_id, ns = 1)
-  kw = Keyword.find key_id
-  k = nil
-  ns.times do |n|
-    ttt = (kw.endtime - kw.starttime) / ns
-    p (ttt*n)
-    k = kw.kibers.create(
-      starttime: kw.starttime + 20.hours + ttt*n,
-      crdtime: kw.starttime + 20.hours + ttt*n,
-      endtime: kw.starttime + 20.hours + ttt*(n+1),
-      gap: 72
-    )
-    p k.id
+def search(kw = nil)
+  if kw.nil?
+    a = list
+    print "要搜索哪一项?\n>"
+    kw = a[gets.chomp.to_i]    
   end
-  # search k.id
-  # binding.pry
-end
-
-def ss(key_id)
-  kw = Keyword.find key_id
-  k = kw.kibers.create(
-    starttime: kw.starttime + 20.hours ,
-    crdtime: kw.starttime + 20.hours,
-    endtime: kw.endtime + 20.hours,
-    gap: 120
-  )
-  search k.id
-end
-
-def cc(kid)
-  search kid
-end
-
-def c(key_id)
-  k = Keyword.find(key_id).kibers.first
-  search k.id
-end
-
-def search(kid)
-  k = Kiber.find(kid)
   while true
-    break if k.crdtime > k.endtime
-    starttime = Time.at(k.crdtime).strftime("%F-%H")
-    endtime = Time.at(k.crdtime + k.gap.hours).strftime("%F-%H")
-    weibo.search(
-      keyword: k.keyword.content, 
-      page: k.page , 
-      starttime: starttime, 
-      endtime: endtime, 
+    lks = list_kibers(kw)
+    print "\n启用哪一条线程(多个请用逗号分隔,全部开始输入'#{"a".colorize(:green)}', 新建线程输入'#{"n".colorize(:green)}')?\n>"
+    sl = gets.chomp
+    case sl
+    when "a" then lks.each{|lk| kiber_up(kw, lk); sleep(15) }
+    when "n" then new_kiber(kw)
+    else
+      sl.scan(/\d{1,2}/).each do |s|
+        kiber_up(kw, lks[s.to_i])
+        sleep(15)
+        puts "OK!"
+      end
+    end
+  end
+end
+
+def new_kiber(kw)
+  print "设定本线程 开始时间 (默认#{Time.at(kw.starttime).strftime("%F").colorize(:red)})\n>"
+  st = gets.chomp
+  st = st.present? ? Time.parse(st).to_i : kw.starttime
+  print "设定本线程 结束时间 (默认#{Time.at(kw.starttime).strftime("%F").colorize(:red)})\n>"
+  et = gets.chomp
+  et = et.present? ? Time.parse(et).to_i : kw.endtime
+  print "设定本线程 搜索跨度 (默认#{"24".colorize(:red)}小时)\n>"
+  gap = gets.chomp.to_i
+  gap = gap > 0 ? gap : 24
+  print "备注:\n>"
+  mark = gets.chomp
+  kb = kw.kibers.create(
+    :starttime => st,
+    :crdtime   => st,
+    :endtime   => et,
+    :gap       => gap,
+    :mark      => mark
+    )
+end
+
+def kiber_up(kw, kb)
+  tf = Thread.fork do
+    wc = WeiboCrawl.new
+    kb.is_active = true
+    kb.save
+    do_search(kb, wc)
+  end
+  if @kibers[kw.id]
+    @kibers[kw.id][:kibers] << tf
+  else
+    @kibers[kw.id] = {
+      :keyword => kw,
+      :kibers => [tf]
+    }
+  end 
+  print "初始化.....".colorize(:red)
+end
+
+def do_search(kb, wc)
+  while true
+    break if kb.crdtime > kb.endtime
+    wc.search(
+      keyword: kb.keyword.content, 
+      page: kb.page , 
+      starttime: kb.starttime, 
+      endtime: kb.crdtime + kb.gap.hours, 
       xsort: false, 
       ori: true,
-      kid: kid)
-    k.crdtime += k.gap.hours
-    k.page = 1
+      kid: kb.id)
+    kb.crdtime += kb.gap.hours
+    kb.page = 1
   end
-  k.status = k.status | 4
-  k.save
+  kb.is_active = false
+  kb.status = kb.status | 4
+  kb.save
 end
 
-def search_all_count(keywords = nil)
-  tt = Time.parse('2015-1-1')
-  ts = Time.parse('2015-4-1')
-  # keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
-  keywords ||= Keyword.where(:is_deleted => false)
-  CSV.open("tmp/csv/微博提及_#{Time.now.to_i}.csv", "wb") do |csv|
-    csv << ["电影","提及总数", "原创数", "转发数"]
-    i = 0
-    keywords.each do |k|
-      r = weibo.all_count(
-        keyword: k.content, 
-        starttime: k.starttime,
-        endtime: k.endtime
-      )
-      csv << [k.content,r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
+
+def list_kibers(kw)
+  puts "当前关键字搜索的线程有:"
+  puts "  开始时间   结束时间   当前时间   搜索跨度(小时)"
+  kw.kibers.each_with_index do |kb, i|
+    st = Time.at(kb.starttime).strftime("%F")
+    et = Time.at(kb.endtime).strftime("%F")
+    ct = Time.at(kb.crdtime).strftime("%F")
+    gap = kb.gap
+    if kb.is_active
+      puts "#{i} #{st} #{et} #{ct}     #{gap}".colorize(:blue)
+    elsif kb.created_at && kb.created_at + 3.minutes > Time.now
+      puts "#{i} #{st} #{et} #{ct}     #{gap}".colorize(:green)
+    else
+      puts "#{i} #{st} #{et} #{ct}     #{gap}"
     end
-  end
+  end  
 end
 
-def search_every_day_count(key_id = nil)
-  tt = Time.parse('2015-1-1')
-  ts = Time.parse('2015-4-1')
-  k = Keyword.find(key_id)
-  # keywords ||= Keyword.where(:starttime.gt => tt.to_i).where(:starttime.lt => ts.to_i)
-  # keywords ||= Keyword.where(:is_deleted => false)
-  CSV.open("tmp/csv/微博提及_#{ k.content}_#{Time.now.to_i}.csv", "wb") do |csv|
-    csv << ["日期","提及总数", "原创数", "转发数"]
-    tc = (ts - tt) / 86400
-    tc.to_i.times do |tn|
-      r = weibo.all_count(
-        keyword: k.content, 
-        starttime: k.starttime + tn.days,
-        endtime: k.starttime + (tn + 1).days
-      )
-      k.day_count[Time.at(k.starttime + tn.days).strftime("%F")] = r[:total_num_all]
-      k.ori_day_count[Time.at(k.starttime + tn.days).strftime("%F")] = r[:total_num_ori]
-      csv << [Time.at(k.starttime + tn.days).strftime("%F"),r[:total_num_all], r[:total_num_ori], (r[:total_num_all] - r[:total_num_ori] rescue 0)]
-    end
-  end
-  k.save
+def h
+  puts "
+  # ==============================================
+  #
+  #       新建关键词 new_keyword keyword | options
+  #       列出关键词 list
+  #       开始搜索   search
+  #       导出      export 
+  #       退出      ctrl + c[d] or exit!
+  #
+  # ==============================================
+  "
 end
-
-def news(key_id)
-  k = Keyword.find(key_id)
-  @oops.crawl_news(k)
-end
-
-def dayc(key_id)
-  key = Keyword.find(key_id)
-  weibo.search_day_count(key)
-end
-
-def continue_search
-  search(weibo.search_options)
-end
-
-puts "
-# ==============================================
-#
-#       登陆      login username, password
-#       搜索      search keyword | options
-#       设置间隔  set_delay 3..6(default)
-#       导出      export 
-#       退出      ctrl + c[d] or exit!
-#
-# ==============================================
-" 
+h
 pry

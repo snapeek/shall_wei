@@ -1,5 +1,6 @@
 class Kiber
   include Mongoid::Document
+  include Mongoid::Timestamps
   field :starttime        , :type => Integer
   field :crdtime          , :type => Integer
   field :gap              , :type => Integer
@@ -10,6 +11,8 @@ class Kiber
   field :all_count        , :type => Integer, :default => 0
   field :now_count        , :type => Integer, :default => 0
   field :status           , :type => Integer, :default => 0
+  field :mark             , :type => String
+  field :is_active        , :type => Boolean, :default => false
   field :kid              , :type => String
 
   belongs_to :keyword

@@ -57,6 +57,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.8.0)
+    colorize (0.7.7)
     connection_pool (2.1.0)
     debug_inspector (0.0.2)
     domain_name (0.5.23)
@@ -238,6 +239,7 @@ DEPENDENCIES
   capybara
   capybara-mechanize
   coffee-rails (~> 4.0.0)
+  colorize
   high_voltage
   jbuilder (~> 2.0)
   jquery-rails

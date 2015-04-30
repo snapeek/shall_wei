@@ -22,7 +22,7 @@ class Proxy
   def self.get_one(_location = nil)
     ret = nil
     prxs = where(:is_deleted => false).order("last_use DESC")
-    if prxs.count < 50
+    if prxs.count < 30
       get_from_dl
       prxs = where(:is_deleted => false).order("last_use DESC")
     end
@@ -94,7 +94,7 @@ class Proxy
     b = Time.now
     is_confirm = _ip == self.ip
     is_confirm = false if b - a > 10.seconds
-    logger.info "> 验证代理: #{ip}(#{_ip}): #{is_confirm}"
+    # logger.info "> 验证代理: #{ip}(#{_ip}): #{is_confirm}"
     if is_confirm
       return true
     else

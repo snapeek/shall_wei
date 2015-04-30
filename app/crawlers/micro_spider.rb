@@ -45,7 +45,7 @@ class MicroSpider
     @paths            = []
     @actions          = []
     @setted_variables = {}
-    @timeout          = 40
+    @timeout          = 20
     @excretion        = excretion || { status: 'inprogress', results: [] }
     @logger           = Logger.new(STDOUT)
     @visited_paths    = Set.new

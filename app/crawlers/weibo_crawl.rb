@@ -57,9 +57,9 @@ class WeiboCrawl
   attr_accessor :logger, :delay_times, :search_options, :current_weibo_spider, :account
 
   def initialize(args = nil)
-    $logger ||= Logger.new(STDOUT)
+    # $logger ||= Logger.new(STDOUT)
+    $logger ||= Logger.new("log/weibo_crawl.log", 'daily')
     @logger = $logger
-    # @logger = Logger.new("log/weibo_crawl.log", 'daily')
     @broken_paths = []
     @delay_times = 2..5
     @weibos_spiders = []
@@ -87,10 +87,6 @@ class WeiboCrawl
     weibos_spider.get_with_login(url, is_ajax)
   end
 
-  def get_with_login2(url, is_ajax = false)
-    weibos_spider.get_with_login2(url, is_ajax)
-  end
-
   def jget(url)
     weibos_spider.jget(url)
   end
@@ -101,21 +97,6 @@ class WeiboCrawl
 
   def account
     @current_weibo_spider.account
-  end
-
-  def load_status
-    Dir.mkdir("tmp/search_status/") unless Dir.exist?("tmp/search_status/")
-    options = []
-    status_files = Dir["#{File.dirname(__FILE__)}/../../tmp/search_status/*.yaml"]
-    puts "发现之前的搜索结果, 输入相应编号继续搜索, 按 Enter 略过.\n\n" if status_files.present?
-    status_files.each_with_index do |path, idx| 
-      opt = YAML.load_file(path)
-      options << opt
-      puts "  #{idx + 1}) #{opt[:keyword]} 从#{opt[:starttime]}起的第#{opt[:page] || 1}页"
-    end
-    print "请输入: " if status_files.present?
-    _input = gets
-    opt = options[_input.to_i - 1] if _input.present?
   end
 end
 

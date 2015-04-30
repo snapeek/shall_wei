@@ -4,83 +4,30 @@ module WeiboUtils
 
     def get_with_login(url, is_ajax = false)
       delay
-      ensure_use_count
-      page = @weibos_spider.get(url)
+      page = tget(url)
       return page if is_ajax && page.is_a?(Mechanize::File)
       page = ensure_not_captcha_page(page)
-      # page = ensure_not_relogin_page(page)
       page = ensure_logined_page(page, url)
-    rescue SystemExit, Interrupt
-      ensure_use_logout
-      logger.fatal("SystemExit && Interrupt")
-      print "确定要退出吗?(y/n) "
-      exit! if gets.include?('y')
-    rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT, Net::HTTP::Persistent::Error, 
-      Net::HTTPNotImplemented, Net::HTTPBadGateway
-      if @retry_time >= 3
-        logger.fatal("> 更换代理: HttpError.")
-        @retry_time = 0
-        xproxy
-      retry
-        logger.fatal("> 重试连接: HttpError.")
-        @retry_time += 1
-      end
-      retry
-    rescue Exception => e
-      ensure_use_logout
-      logger.fatal("HtmlError:")
-      # binding.pry
-      logger.fatal(page.search("body").text)
-    ensure
-      @retry_time = 0
-      return page
+      page
     end
 
-    def @weibos_spider.get(url)
-      redo_times = 0
-      @wspage = nil
-      while(redo_times < 6 || @wspage == nil)
-        begin
-          @wspage = Timeout::timeout(@timeout) { @weibos_spider.get(url) }
-          break if @wspage
-        rescue Timeout::Error => err
-          logger.fatal('Timeout!!! execution expired when execute action')
-          logger.fatal(err.message)
-          logger.fatal(err.backtrace.inspect)
-          redo_times += 1
-          next if redo_times  < 3
+    def tget(url)
+      begin
+        page = Timeout::timeout(@timeout) { @weibos_spider.get(url) }
+      rescue Timeout::Error, Mechanize::ResponseReadError, Errno::ETIMEDOUT, Net::HTTP::Persistent::Error, 
+      Net::HTTPNotImplemented, Net::HTTPBadGateway
+        if @retry_time >= 3
+          @retry_time = 0
           xproxy
+        else
+          @retry_time += 1
         end
+        retry
+      rescue Exception => e
+        ensure_use_logout
+        logger.fatal("HtmlError")
+        logger.fatal(page.search("body").text)        
       end
-      @wspage
-    end
-
-    def get_with_login2(url, is_ajax = false)
-      delay
-      ensure_use_count
-      page = @weibos_spider.get(url)
-      return page if is_ajax && page.is_a?(Mechanize::File)
-    rescue SystemExit, Interrupt
-      ensure_use_logout
-      logger.fatal("SystemExit && Interrupt")
-      print "确定要退出吗?(y/n) "
-      exit! if gets.include?('y')
-    rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT, Net::HTTP::Persistent::Error, 
-      Net::HTTPNotImplemented, Net::HTTPBadGateway
-      if @retry_time >= 3
-        logger.fatal("> 更换代理: HttpError.")
-        @retry_time = 0
-        xproxy
-      retry
-        logger.fatal("> 重试连接: HttpError.")
-        @retry_time += 1
-      end
-      retry
-    rescue Exception => e
-      ensure_use_logout
-      logger.fatal("HtmlError:")
-      # binding.pry
-      logger.fatal(page.search("body").text)
     ensure
       @retry_time = 0
       return page
@@ -88,7 +35,7 @@ module WeiboUtils
 
     def jget(url)
       delay
-      page = @weibos_spider.get(url)
+      page = tget(url)
     rescue SystemExit, Interrupt
       logger.fatal("SystemExit && Interrupt")
       print "确定要退出吗?(y/n) "
@@ -107,16 +54,6 @@ module WeiboUtils
       page.uri.to_s.include?("userblock")
     end
 
-    def ensure_use_count
-      # prx = @account.proxy
-      if account.use_count > 1000
-        logger.fatal("> 更换账号: 原账号已使用#{account.use_count}次.")
-        account.idle 
-        xaccount(false)
-      end
-      account.use
-    end
-
     def ensure_use_logout
       @account.on_crawl =false
       @account.save
@@ -126,7 +63,7 @@ module WeiboUtils
       pcurl = "http://s.weibo.com/ajax/pincode/pin?type=sass&amp;ts=#{Time.now.to_i}"
       cap = Captcha.create
       file_name = cap.id.to_s
-      @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
+      tget(pcurl).save_as("./public/captchas/#{file_name}.png")
       @x_captcha = input_captcha(cap)
     ensure
       cap.destroy
@@ -143,7 +80,7 @@ module WeiboUtils
         ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
         ret = JSON.parse(ret.body)
         if ret["code"] == "100000"
-          return @weibos_spider.get(page_uri)
+          return tget(page_uri)
         else
           return ensure_not_captcha_page(page)
         end

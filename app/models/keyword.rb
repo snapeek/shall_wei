@@ -18,6 +18,8 @@ class Keyword
   has_and_belongs_to_many :weibo_users
   has_many :baidu_news
 
+  scope :active, -> { where :is_deleted => false}
+
   def get_kiber(st, ac)
     kibers.where(:kid => "#{st}-#{ac}").first
   end
