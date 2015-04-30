@@ -32,7 +32,7 @@ def export
   sl = gets.chomp
   return a.each{|a| a.w_to_csv } if sl == "a"
   sl.scan(/\d{1,2}/).each do |s|
-    a[s.to_i].try :w_to_csv
+    a.to_a[s.to_i].try :w_to_csv
   end
   print "导出完毕."
 end
@@ -41,8 +41,7 @@ def search(kw = nil)
   if kw.nil?
     a = list
     print "要搜索哪一项?\n>"
-    binding.pry
-    kw = a[gets.chomp.to_i]    
+    kw = a.to_a[gets.chomp.to_i]    
   end
   while true
     lks = list_kibers(kw)
