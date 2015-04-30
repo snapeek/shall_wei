@@ -83,9 +83,9 @@ end
 
 def kiber_up(kw, kb)
   tf = Thread.fork do
-    wc = WeiboCrawl.new
     kb.is_active = true
-    kb.save
+    kb.save    
+    wc = WeiboCrawl.new
     do_search(kb, wc)
   end
   if @kibers[kw.id]
