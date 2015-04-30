@@ -41,6 +41,7 @@ def search(kw = nil)
   if kw.nil?
     a = list
     print "要搜索哪一项?\n>"
+    binding.pry
     kw = a[gets.chomp.to_i]    
   end
   while true
@@ -51,7 +52,6 @@ def search(kw = nil)
     when "a" then lks.each{|lk| kiber_up(kw, lk); sleep(15) }
     when "n" then new_kiber(kw)
     else
-      binding.pry
       sl.scan(/\d{1,2}/).each do |s|
         kiber_up(kw, lks[s.to_i])
         sleep(5)
