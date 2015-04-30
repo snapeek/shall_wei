@@ -52,7 +52,7 @@ def search(kw = nil)
     when "n" then new_kiber(kw)
     else
       sl.scan(/\d{1,2}/).each do |s|
-        kiber_up(kw, lks[s.to_i])
+        kiber_up(kw, lks.to_a[s.to_i])
         sleep(5)
         puts "OK!".colorize(:red)
       end
