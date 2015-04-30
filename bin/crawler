@@ -22,7 +22,7 @@ def new_keyword
   print "结束时间(YYYY-MM-DD):\n>"
   et = gets.chomp
   puts "请确定(Y/n)\n#{ct}\n#{st}\n#{et}\n"
-  kw = keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
+  kw = Keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
   search(kw)
 end
 
@@ -53,8 +53,8 @@ def search(kw = nil)
     else
       sl.scan(/\d{1,2}/).each do |s|
         kiber_up(kw, lks[s.to_i])
-        sleep(15)
-        puts "OK!"
+        sleep(5)
+        puts "OK!".colorize(:red)
       end
     end
   end
@@ -64,7 +64,7 @@ def new_kiber(kw)
   print "设定本线程 开始时间 (默认#{Time.at(kw.starttime).strftime("%F").colorize(:red)})\n>"
   st = gets.chomp
   st = st.present? ? Time.parse(st).to_i : kw.starttime
-  print "设定本线程 结束时间 (默认#{Time.at(kw.starttime).strftime("%F").colorize(:red)})\n>"
+  print "设定本线程 结束时间 (默认#{Time.at(kw.endtime).strftime("%F").colorize(:red)})\n>"
   et = gets.chomp
   et = et.present? ? Time.parse(et).to_i : kw.endtime
   print "设定本线程 搜索跨度 (默认#{"24".colorize(:red)}小时)\n>"
