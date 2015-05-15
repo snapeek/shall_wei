@@ -31,6 +31,8 @@ module WeiboUtils
       end
 
       def try_login
+        cid = @login_data.delete('cid')
+        cap = Captcha.where(:id => cid).first
         login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", login_data)
         callback_url = login_page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
         after_login_page = @weibos_spider.get(callback_url)
@@ -41,9 +43,11 @@ module WeiboUtils
         result_json = JSON.parse(after_login_page.body.match(/\{[\w\W]*\}/).to_s)
         if result_json["result"]
           save_cookies
+          cap.update_attribute(:is_correct, true) if cid.present?
           logger.info "> 登录成功: 通过账号密码登陆 #{username}"
         else
           delete_cookies
+          cap.update_attribute(:is_correct, false) if cid.present?
           # binding.pry
           rescue_when_errno_is(result_json["errno"])
           logger.info "> 登录失败: #{result_json["errno"]}--#{result_json["reason"]}"
@@ -117,9 +121,11 @@ module WeiboUtils
         file_name = cap.id.to_s
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
-      ensure
-        FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-        cap.destroy
+        @login_data['cid'] = cap.id.to_s
+        cap
+      # ensure
+        # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+        # cap.destroy
       end
 
       # def input_captcha
@@ -162,11 +168,13 @@ module WeiboUtils
       def input_captcha(cap)
         puts "<请到页面输入验证码>"
         reload_count = 0
-        while reload_count < 25
+        while true
           if reload_count < 10
             sleep(5)
-          else
+          elsif reload_count < 20
             sleep(10)
+          else
+            sleep(30)
           end
           reload_count += 1
           cap.reload

@@ -65,9 +65,10 @@ module WeiboUtils
       file_name = cap.id.to_s
       tget(pcurl).save_as("./public/captchas/#{file_name}.png")
       @x_captcha = input_captcha(cap)
-    ensure
-      cap.destroy
-      FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+      cap
+    # ensure
+      # cap.destroy
+      # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
       # File.delete("./public/captchas/#{file_name}.png") 
     end
 
@@ -75,13 +76,15 @@ module WeiboUtils
       captcha_pice = get_script_html(page, 'pl_common_sassfilter')
       captcha_pice = get_field(page, '#pl_common_sassfilter') unless captcha_pice.present?
       if captcha_pice.present?
-        save_x_captcha
+        cap = save_x_captcha
         page_uri = page.uri.to_s
         ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
         ret = JSON.parse(ret.body)
         if ret["code"] == "100000"
+          cap.update_attribute(:is_correct, true)
           return tget(page_uri)
         else
+          cap.update_attribute(:is_correct, false)
           return ensure_not_captcha_page(page)
         end
       end

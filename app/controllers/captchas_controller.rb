@@ -1,5 +1,5 @@
 class CaptchasController < ApplicationController
-  before_action :set_captcha, only: [:show, :edit, :update, :destroy]
+  before_action :create, :set_captcha, only: [:show, :edit, :update, :destroy]
 
   # GET /captchas
   # GET /captchas.json
@@ -21,18 +21,26 @@ class CaptchasController < ApplicationController
   def edit
   end
 
-  # POST /captchas
   # POST /captchas.json
   def create
-    @captcha = Captcha.new(captcha_params)
-
     respond_to do |format|
-      if @captcha.save
-        format.html { redirect_to @captcha, notice: 'Captcha was successfully created.' }
-        format.json { render :show, status: :created, location: @captcha }
+      if @captcha.update(captcha_params)
+        while true
+          sleep(1)
+          @captcha.reload
+          if @captcha.code == true
+            format.json { result: true }
+            break
+          elsif @captcha.code == false
+            format.json { result: false }
+            break
+          else
+            sleep(4)
+            next
+          end
+        end
       else
-        format.html { render :new }
-        format.json { render json: @captcha.errors, status: :unprocessable_entity }
+        format.json { result: false }
       end
     end
   end
@@ -43,8 +51,10 @@ class CaptchasController < ApplicationController
     respond_to do |format|
       if @captcha.update(captcha_params)
         format.html { redirect_to captchas_path, notice: '验证码填写成功.' }
+        format.json {  }
       else
         format.html { redirect_to captchas_path, notice: '验证码填写失败.' }
+        format.json {  }
       end
     end
   end
