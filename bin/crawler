@@ -11,7 +11,7 @@ def weibo
 end
 
 def list
-  Keyword.active.each_with_index{|k, i| puts "#{i}. #{k.content}"}
+  Keyword.active.each_with_index{|k, i| puts "#{i}. #{k.content} #{k.weibos.count}"}
 end
 
 def new_keyword
