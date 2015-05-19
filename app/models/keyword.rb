@@ -33,12 +33,19 @@ class Keyword
 
   def w_to_csv
     CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
+      binding.pry
       csv << ["用户名", "内容", "发表时间", "月", "天", "小时","转载数", "个人认证", "商业认证", "感情色彩"]
       weibos.each do |w|
         tt = Time.at(w.created_at)
-        csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, w.approve, w.approve_co]
+        csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, b2i(w.approve), b2i(w.approve_co)].map do |str|
+          str.to_s.encode('utf-8','gbk',{:invalid => :replace, :undef => :replace, :replace => '?'})
+        end
       end
     end
+  end
+
+  def b2i(b)
+    b ? 1 : 0
   end
 
   def w2_to_csv

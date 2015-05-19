@@ -24,7 +24,7 @@ STK.register("comp.hotfeed", function(stk) {
     stk.core.io.ajax(
       {
         url:"/index/ajax/getchartdata",
-        args:{month:12},
+        args:{month:4},
         method:"get",
         onComplete:function (an) {
           var zt_str = "";

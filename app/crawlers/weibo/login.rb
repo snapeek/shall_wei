@@ -31,11 +31,13 @@ module WeiboUtils
       end
 
       def try_login
+        login_data
         cid = @login_data.delete('cid')
         cap = Captcha.where(:id => cid).first
-        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", login_data)
+        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", @login_data)
         callback_url = login_page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
         after_login_page = @weibos_spider.get(callback_url)
+        cap.update_attribute(:is_correct, true) if cid.present?
       rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT,
         Net::HTTP::Persistent::Error, Net::HTTPInternalServerError, Net::HTTPNotImplemented
         xproxy
@@ -122,7 +124,6 @@ module WeiboUtils
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
         @login_data['cid'] = cap.id.to_s
-        cap
       # ensure
         # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
         # cap.destroy
@@ -179,7 +180,6 @@ module WeiboUtils
           reload_count += 1
           cap.reload
           if cap.code
-            cap.destroy
             break
           end
         end
