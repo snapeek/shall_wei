@@ -34,7 +34,7 @@ class Keyword
   def w_to_csv
     CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["用户名", "内容", "发表时间", "月", "天", "小时","转载数", "个人认证", "商业认证", "感情色彩"].map do |str| 
-        str.encode('utf-8', 'gbk',{:invalid => :replace, :undef => :replace, :replace => '?'}
+        str.encode('utf-8', 'gbk',{:invalid => :replace, :undef => :replace, :replace => '?'})
       end
       weibos.each do |w|
         tt = Time.at(w.created_at)
