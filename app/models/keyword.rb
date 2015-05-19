@@ -1,3 +1,4 @@
+require 'csv'
 
 class Keyword
   include Mongoid::Document
@@ -38,7 +39,7 @@ class Keyword
       weibos.each do |w|
         tt = Time.at(w.created_at)
         csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, b2i(w.approve), b2i(w.approve_co)].map do |str|
-          str.to_s.encode('gbk', 'utf-8',{:invalid => :replace, :undef => :replace, :replace => '?'})
+          str.to_s.encode('gbk','utf-8',{:invalid => :replace, :undef => :replace, :replace => '?'})
         end
       end
     end
