@@ -16,14 +16,16 @@ end
 
 def new_keyword
   print "请输入要搜索的关键字:\n>"
-  ct = gets.chomp
+  cts = gets.chomp
   print "起始时间(YYYY-MM-DD):\n>"
   st = gets.chomp
   print "结束时间(YYYY-MM-DD):\n>"
   et = gets.chomp
   puts "请确定(Y/n)\n#{ct}\n#{st}\n#{et}\n"
-  kw = Keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
-  search(kw)
+  cts.split(',').each do |ct|
+    kw = Keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
+    search(kw)
+  end
 end
 
 def export
@@ -50,6 +52,7 @@ def search(kw = nil)
     case sl
     when "a" then lks.each{|lk| kiber_up(kw, lk); sleep(15) }
     when "n" then new_kiber(kw)
+    when "e" then break
     else
       sl.scan(/\d{1,2}/).each do |s|
         kiber_up(kw, lks.to_a[s.to_i])
