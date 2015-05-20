@@ -21,8 +21,8 @@ def new_keyword
   st = gets.chomp
   print "结束时间(YYYY-MM-DD):\n>"
   et = gets.chomp
-  puts "请确定(Y/n)\n#{ct}\n#{st}\n#{et}\n"
   cts.split(',').each do |ct|
+    puts "请确定(Y/n)\n#{ct}\n#{st}\n#{et}\n"
     kw = Keyword.create(content: ct, starttime: Time.parse(st), endtime: Time.parse(et))
     search(kw)
   end
