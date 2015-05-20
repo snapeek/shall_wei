@@ -124,9 +124,9 @@ module WeiboUtils
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
         @login_data['cid'] = cap.id.to_s
-      # ensure
-        # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-        # cap.destroy
+      ensure
+        FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+        cap.destroy
       end
 
       # def input_captcha
@@ -180,6 +180,7 @@ module WeiboUtils
           reload_count += 1
           cap.reload
           if cap.code
+            cap.destroy
             break
           end
         end

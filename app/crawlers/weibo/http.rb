@@ -66,10 +66,10 @@ module WeiboUtils
       tget(pcurl).save_as("./public/captchas/#{file_name}.png")
       @x_captcha = input_captcha(cap)
       cap
-    # ensure
-      # cap.destroy
-      # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-      # File.delete("./public/captchas/#{file_name}.png") 
+    ensure
+      cap.destroy
+      FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+      File.delete("./public/captchas/#{file_name}.png") 
     end
 
     def ensure_not_captcha_page(page)
