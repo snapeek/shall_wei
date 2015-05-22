@@ -26,22 +26,23 @@ class CaptchasController < ApplicationController
     @captcha = Captcha.find(params[:captcha][:id])
     respond_to do |format|
       if @captcha.update(captcha_params)
-        while true
-          sleep(1)
-          @captcha.reload
-          case @captcha.is_correct
-          when true
-            format.json { render :json => {:result => true} }
-            break
-          when false
             format.json { render :json => {:result => false} }
-            break
-          else
-            sleep(4)
-            next
-          end
-          @captcha.destroy
-        end
+        # while true
+        #   sleep(1)
+        #   @captcha.reload
+        #   case @captcha.is_correct
+        #   when true
+        #     format.json { render :json => {:result => true} }
+        #     break
+        #   when false
+        #     format.json { render :json => {:result => false} }
+        #     break
+        #   else
+        #     sleep(4)
+        #     next
+        #   end
+        #   @captcha.destroy
+        # end
       else
         format.json { render :json => {:result => false} }
       end

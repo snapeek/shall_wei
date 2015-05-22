@@ -65,6 +65,7 @@ end
 
 def qs
   Keyword.active.each do |kw|
+    print kw.content
     kiber_up(kw, kw.kibers.first)
     sleep(5)
     puts "OK!".colorize(:red)
