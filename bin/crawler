@@ -115,7 +115,9 @@ def do_search(kb, wc)
       kid: kb.id)
     kb.crdtime += kb.gap.hours
     kb.page = 1
+    kb.save
   end
+ensure
   kb.is_active = false
   kb.status = kb.status | 4
   kb.save
