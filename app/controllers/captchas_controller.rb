@@ -29,7 +29,11 @@ class CaptchasController < ApplicationController
     @captcha = Captcha.where(:id => params[:captcha][:id]).first
     respond_to do |format|
       if @captcha && @captcha.update(captcha_params)
+        if [4,5].include @captcha.code.length
           format.json { render :json => {:result => true} }
+        else
+          format.json { render :json => {:result => false} }
+        end
           @captcha.destroy
         # while true
         #   sleep(1)
