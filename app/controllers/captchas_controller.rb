@@ -1,6 +1,9 @@
 class CaptchasController < ApplicationController
   before_action :set_captcha, only: [:show, :edit, :update, :destroy]
-
+  protect_from_forgery :except => :create  
+  
+   # you can disable csrf protection on controller-by-controller basis:  
+   skip_before_filter :verify_authenticity_token
   # GET /captchas
   # GET /captchas.json
   def index
@@ -26,7 +29,7 @@ class CaptchasController < ApplicationController
     @captcha = Captcha.find(params[:captcha][:id])
     respond_to do |format|
       if @captcha.update(captcha_params)
-            format.json { render :json => {:result => false} }
+          format.json { render :json => {:result => false} }
         # while true
         #   sleep(1)
         #   @captcha.reload
