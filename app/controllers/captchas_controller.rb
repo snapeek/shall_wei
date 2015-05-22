@@ -26,9 +26,9 @@ class CaptchasController < ApplicationController
 
   # POST /captchas.json
   def create
-    @captcha = Captcha.find(params[:captcha][:id])
+    @captcha = Captcha.where(:id => params[:captcha][:id]).first
     respond_to do |format|
-      if @captcha.update(captcha_params)
+      if @captcha && @captcha.update(captcha_params)
           format.json { render :json => {:result => false} }
         # while true
         #   sleep(1)
