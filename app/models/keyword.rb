@@ -37,7 +37,7 @@ class Keyword
         str.encode('gbk', 'utf-8',{:invalid => :replace, :undef => :replace, :replace => '?'})
       end
       WWW.each do |word|
-        wds = weibos.where(:content.include => word)
+        wds = weibos.where(:content => /#{word}/)
         wds.each do |w|
           tt = Time.at(w.created_at)
           csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, b2i(w.approve), b2i(w.approve_co)].map do |str|
