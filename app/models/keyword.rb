@@ -47,14 +47,16 @@ class Keyword
   end
 
   def wa_to_csv
-    csv << ["用户名", "ID", ]
-    wbs = weibos.where(:approve => true)
-    wbus = []
-    wbs.each do |w|
-      next if wbus.include w.uid
-      wbus << w.uid
-      csv << [w.user_name, w.uid]
-    end  
+    CSV.open("tmp/csv/微博认证.csv", "wb") do |csv|
+      csv << ["用户名", "ID", ]
+      wbs = weibos.where(:approve => true)
+      wbus = []
+      wbs.each do |w|
+        next if wbus.include w.uid
+        wbus << w.uid
+        csv << [w.user_name, w.uid]
+      end 
+    end 
   end
 
   def b2i(b)
