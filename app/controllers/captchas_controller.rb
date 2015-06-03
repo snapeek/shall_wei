@@ -34,23 +34,22 @@ class CaptchasController < ApplicationController
         else
           format.json { render :json => {:result => false} }
         end
+        while true
+          sleep(1)
+          @captcha.reload
+          case @captcha.status
+          when 2
+            format.json { render :json => {:result => true} }
+            break
+          when 3
+            format.json { render :json => {:result => false} }
+            break
+          else
+            sleep(4)
+            next
+          end
           @captcha.destroy
-        # while true
-        #   sleep(1)
-        #   @captcha.reload
-        #   case @captcha.is_correct
-        #   when true
-        #     format.json { render :json => {:result => true} }
-        #     break
-        #   when false
-        #     format.json { render :json => {:result => false} }
-        #     break
-        #   else
-        #     sleep(4)
-        #     next
-        #   end
-        #   @captcha.destroy
-        # end
+        end
       else
         format.json { render :json => {:result => false} }
       end

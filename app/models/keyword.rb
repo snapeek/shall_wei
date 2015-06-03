@@ -30,19 +30,9 @@ class Keyword
     weibo_to_csv
     repost_to_csv
   end
-  WWW = ["强迫消费","不明码标价","假冒伪劣","混乱","态度差","强买强卖","欺客宰客","卫生差","不文明","黑导游","旅游厕所","物价高","尾随兜售","一日游","诱导购物"]
+
   def w_to_csv
-    WWW.each do |word|
-      CSV.open("tmp/csv/#{content} #{word}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
-        wds = weibos.where(:content => /#{word}/)
-        wds.each do |w|
-          tt = Time.at(w.created_at)
-          csv << [w.user_name, w.content, tt, tt.month, tt.day, tt.hour, w.reposts_count, b2i(w.approve), b2i(w.approve_co)].map do |str|
-            str.to_s.encode('gbk','utf-8',{:invalid => :replace, :undef => :replace, :replace => '?'})
-          end
-        end
-      end
-    end
+
     CSV.open("tmp/csv/#{content}-微博-#{Time.at(starttime).strftime('%F')}-#{Time.at(endtime).strftime('%F')}.csv", "wb") do |csv|
       csv << ["用户名", "内容", "发表时间", "月", "天", "小时","转载数", "个人认证", "商业认证", "感情色彩"].map do |str| 
         str.encode('gbk', 'utf-8',{:invalid => :replace, :undef => :replace, :replace => '?'})
@@ -54,6 +44,17 @@ class Keyword
         end
       end      
     end
+  end
+
+  def wa_to_csv
+    csv << ["用户名", "ID", ]
+    wbs = weibos.where(:approve => true)
+    wbus = []
+    wbs.each do |w|
+      next if wbus.include w.uid
+      wbus << w.uid
+      csv << [w.user_name, w.uid]
+    end  
   end
 
   def b2i(b)

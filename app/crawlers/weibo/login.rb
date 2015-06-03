@@ -32,12 +32,9 @@ module WeiboUtils
 
       def try_login
         login_data
-        # cid = @login_data.delete('cid')
-        # cap = Captcha.where(:id => cid).first
-        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", login_data)
+        login_page = @weibos_spider.post("http://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.15)&_=#{rnd}", @login_data)
         callback_url = login_page.search('script').to_s.match(/.replace\([\"\']([\w\W]*)[\"\']\)/)[1]
         after_login_page = @weibos_spider.get(callback_url)
-        # cap.update_attribute(:is_correct, true) if cid.present?
       rescue Mechanize::ResponseReadError, Errno::ETIMEDOUT,
         Net::HTTP::Persistent::Error, Net::HTTPInternalServerError, Net::HTTPNotImplemented
         xproxy
@@ -112,21 +109,22 @@ module WeiboUtils
           'returntype'=> 'MATA'
         }
 
-        save_captcha unless @login_info["pcid"].empty?
+        get_captcha if @login_info["pcid"].present?
         @login_data
       end
 
-      def save_captcha
+      def get_captcha
         set_cpc_count
         pcurl = "http://login.sina.com.cn/cgi/pin.php?r=#{(rand * 100000000).floor}&s=0&p=#{@login_info["pcid"]}"
         cap = Captcha.create
         file_name = cap.id.to_s
         @weibos_spider.get(pcurl).save_as("./public/captchas/#{file_name}.png")
         @login_data['door'] = input_captcha(cap)
+        # @login_data['door'] = input_captcha(cap)
         # @login_data['cid'] = cap.id.to_s
-      ensure
-        FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-        cap.destroy
+        # ensure
+        #   FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+        #   cap.destroy
       end
 
       # def input_captcha
@@ -180,11 +178,15 @@ module WeiboUtils
           reload_count += 1
           cap.reload
           if cap.code
-            cap.destroy
+            update_captcha(1)
             break
           end
         end
         cap.code
+      end
+
+      def update_captcha(st)
+        cap.update_attribute :status, st
       end
 
       def encode_password
