@@ -7,7 +7,7 @@ module WeiboUtils
     module InstanceMethods
 
       def getr
-        ["http://weibo.com/5379998175/CrcGHAJE0", 
+        a = ["http://weibo.com/5379998175/CrcGHAJE0", 
          "http://weibo.com/2066641201/CpyI5thaq",
          "http://weibo.com/5379998175/CpyBB2uLt",
          "http://weibo.com/5379998175/CoLlKqzzx",
@@ -15,6 +15,13 @@ module WeiboUtils
          "http://weibo.com/2995631244/BBfhikhLa",
          "http://weibo.com/1667553532/Cjckkw8lD"
         ]
+        Errors = []
+        begin
+          a.each {|aa| get_repost_from(aa) }
+        rescue Exception => e
+          Errors << e
+        end
+        Errors
       end
 
       def get_repost_from(url)
