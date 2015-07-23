@@ -67,19 +67,20 @@ module WeiboUtils
       end
 
       def save_repost(w, host_weibo)
-        weibo = w[:mid] ? Weibo.find_or_create_by(:mid => w[:mid]) : Weibo.new
-        weibo = weibo.update(w)
+        weibo = Weibo.where(:mid => w[:mid]).fisrt
+        return weibo if weibo
+        weibo = Weibo.create(w)
         weibo.save
-        wu = WeiboUser.create(
-          :wid => w[:uid],
-          :name => w[:user_name]
-        )
+        # wu = WeiboUser.create(
+        #   :wid => w[:uid],
+        #   :name => w[:user_name]
+        # )
         logger.info("> 准备转入: (#{host_weibo.reposts.count})#{host_weibo.mid} << (#{weibo.hpost.blank?})#{weibo.mid} .")
         host_weibo.reposts << weibo if weibo.hpost.blank?
-        wu.weibos << weibo
+        # wu.weibos << weibo
         weibo.save
         host_weibo.save
-        wu.save
+        # wu.save
       rescue Exception => err
         logger.fatal("> 保存出错: ")
         logger.fatal(err)
