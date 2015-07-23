@@ -62,6 +62,40 @@ class Weibo
     _data
   end
 
+  def to_json
+    @nodes = []
+    @links = []
+    @nodes << {
+      :name => "#{user_name}(#{self.reposts.count})",
+      :group => 1,
+      :ww => self.reposts.count
+      }
+    make_nodes(0)
+    {
+      nodes: @nodes,
+      links: @links
+    }
+  end
+
+  def make_nodes(i)
+    self.reposts.each do |wr|
+      if wr.reposts.count > 0
+        @nodes << {
+          :name => "#{wr.user_name}(#{wr.reposts.count})",
+          :group => 1,
+          :ww => wr.reposts.count
+        }
+        target = @nodes.count - 1
+        @links << {
+          :source => i,
+          :target => target,
+          :value => wr.reposts.count
+        }
+        make_nodes(target)
+      end
+    end
+  end
+
   def self.wa_to_csv
     CSV.open("tmp/csv/微博认证.csv", "wb") do |csv|
       csv << ["用户名", "ID", ]
