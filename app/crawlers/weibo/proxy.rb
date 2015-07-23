@@ -6,22 +6,22 @@ module WeiboUtils
     
     module InstanceMethods
       def set_proxy
-        prx = @account.proxy
-        if !( prx && prx.confirm)
-          prx = ::Proxy.get_one
-          @account.proxy = prx
-          @account.save
-        end
-        @weibos_spider.set_proxy(prx.ip, prx.port)
+        # prx = @account.proxy
+        # if !( prx && prx.confirm)
+        #   prx = ::Proxy.get_one
+        #   @account.proxy = prx
+        #   @account.save
+        # end
+        # @weibos_spider.set_proxy(prx.ip, prx.port)
       end
 
       def xproxy
-        logger.info("> 更换代理.")
-        prx = ::Proxy.get_one
-        @account.proxy.destroy
-        @account.proxy = prx
-        @account.save
-        @weibos_spider.set_proxy(prx.ip, prx.port)
+        # logger.info("> 更换代理.")
+        # prx = ::Proxy.get_one
+        # @account.proxy.destroy
+        # @account.proxy = prx
+        # @account.save
+        # @weibos_spider.set_proxy(prx.ip, prx.port)
       end
     end
     

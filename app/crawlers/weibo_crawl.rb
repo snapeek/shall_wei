@@ -49,6 +49,7 @@ end
 class WeiboCrawl
   include WeiboUtils::Hacks
   include WeiboUtils::Search
+  include WeiboUtils::Auser
   include WeiboUtils::DayCount
   include WeiboUtils::Brand
   include WeiboUtils::UserInfo

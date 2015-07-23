@@ -5,9 +5,20 @@ module WeiboUtils
     end
     
     module InstanceMethods
+      def get_repost_from(url)
+        page = get_with_login(url)
+        page = get_script_html(page, /Pl_Official_WeiboDetail/)
+        w = {}
+        w[:wid] = w[:mid] = str_to_mid(url.split('/').last)
+        w[:text] = get_field(page, '.WB_detail .WB_text').text
+        w[:created_at] = get_field(page, 'div.WB_from.S_txt2>a'){|a| Time.parse(a.attr('title')).to_i }
+        weibo = Weibo.create(w)
+        repost(weibo.mid)
+      end
+
       def repost(mid)
         host_weibo = Weibo.find_by(:mid => mid)
-        nextpage = "id=#{mid}&filter=hot"
+        nextpage = "id=#{mid}&filter=0"
         while nextpage.present?
           url = "http://weibo.com/aj/v6/mblog/info/big?ajwvr=6&#{nextpage}&__rnd=#{rnd}"
           page = get_with_login(url, true)

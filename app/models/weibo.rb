@@ -65,7 +65,7 @@ class Weibo
   def self.wa_to_csv
     CSV.open("tmp/csv/微博认证.csv", "wb") do |csv|
       csv << ["用户名", "ID", ]
-      wbs = Weibo.where(:approve => true)
+      wbs = WeiboUser.where(:approve => true)
       wbus = []
       wbs.each do |w|
         next if wbus.include? w.uid

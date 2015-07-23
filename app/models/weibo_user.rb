@@ -33,7 +33,8 @@ class WeiboUser
   field :identity_info     , :type => String # 商业认证
   field :marriage          , :type => String # 婚姻状态
   field :luid              , :type => String # page_id
-
+  field :is_uuu            , :type => Boolean
+  
   field :follow_count      , :type => Integer, :default => 0
   field :fans_count        , :type => Integer, :default => 0
   field :weibo_count       , :type => Integer, :default => 0
@@ -72,6 +73,18 @@ class WeiboUser
       }
     end
   end 
+
+  def self.wa_to_csv
+    CSV.open("tmp/csv/微博ID.csv", "wb") do |csv|
+      csv << ["ID", ]
+      wbus = []
+      all.each do |w|
+        next if wbus.include? w.wid
+        wbus << w.wid
+        csv << [w.wid]
+      end 
+    end 
+  end  
 
   def self.group_by_location_count
     ac = where(:location => /[\d\D]+/).count

@@ -123,8 +123,8 @@ module WeiboUtils
         # @login_data['door'] = input_captcha(cap)
         # @login_data['cid'] = cap.id.to_s
         # ensure
-        #   FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
-        #   cap.destroy
+          # FileUtils.mv("./public/captchas/#{file_name}.png", "./public/captchas/#{cap.code}.png") if File.exist?("./public/captchas/#{file_name}.png")
+          # cap.destroy
       end
 
       # def input_captcha
@@ -165,9 +165,9 @@ module WeiboUtils
       end
 
       def input_captcha(cap)
-        puts "<请到页面输入验证码>"
         reload_count = 0
         while true
+          puts "<请到页面输入验证码>"
           if reload_count < 10
             sleep(5)
           elsif reload_count < 20
@@ -178,7 +178,8 @@ module WeiboUtils
           reload_count += 1
           cap.reload
           if cap.code
-            update_captcha(1)
+            # update_captcha(1)
+            cap.destroy
             break
           end
         end

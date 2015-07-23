@@ -1,9 +1,9 @@
 javascript:($(function() {
 var exec = function(){
   window.dflag = true;
-  // stk.attributealldata();
-  // stk.keywordzone();
+  stk.keywordzone();
   stk.getchartdata();
+  stk.attributealldata();
 };
 if(typeof(stk) == "undefined") {
 window.dflag = false;
