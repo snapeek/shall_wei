@@ -58,8 +58,8 @@ class WeiboCrawl
   attr_accessor :logger, :delay_times, :search_options, :current_weibo_spider, :account
 
   def initialize(args = nil)
-    # $logger ||= Logger.new(STDOUT)
-    $logger ||= Logger.new("log/weibo_crawl.log", 'daily')
+    $logger ||= Logger.new(STDOUT)
+    # $logger ||= Logger.new("log/weibo_crawl.log", 'daily')
     @logger = $logger
     @broken_paths = []
     @delay_times = 2..5
