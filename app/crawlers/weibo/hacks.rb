@@ -84,6 +84,15 @@ module WeiboUtils
       else
         joo
       end
+    rescue 
+      sleep(120)
+      joos = page.search("script")
+      joo = joos.select{|joo| joo.to_s.include?("var $CONFIG = {};")}.first.to_s
+      if attr_name.present?
+        return joo.match(/\$CONFIG\[\'#{attr_name}\'\][\s=\']*([\w]*)/).try("[]", 1)
+      else
+        joo
+      end      
     end
 
     def filtered(source, filter_sources)

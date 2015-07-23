@@ -13,7 +13,7 @@ module WeiboUtils
         w[:text] = get_field(page, '.WB_detail .WB_text').text
         w[:created_at] = get_field(page, 'div.WB_from.S_txt2>a'){|a| Time.parse(a.attr('title')).to_i }
         # weibo = w[:mid] ? Weibo.find_or_create_by(:mid => w[:mid]) : Weibo.new
-        weibo = weibo.create(w)
+        weibo = Weibo.create(w)
         weibo.save
         repost(weibo.mid)
       end
