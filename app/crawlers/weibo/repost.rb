@@ -60,7 +60,7 @@ module WeiboUtils
             w = get_repost(post_pice)
             save_repost(w, host_weibo)
             logger.info("> 准备递归: 下方有转发 #{w[:reposts_count]} 条.")
-            repost(w[:mid])
+            repost(w[:mid]) if w[:reposts_count] > 0
           end
           nextpage = get_field(repost_pices, ".WB_cardpage .next span", 'action-data')
         end
