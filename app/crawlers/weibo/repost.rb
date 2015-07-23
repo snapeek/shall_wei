@@ -5,11 +5,27 @@ module WeiboUtils
     end
     
     module InstanceMethods
+
+      def getr
+        ["http://weibo.com/5379998175/CrcGHAJE0", 
+         "http://weibo.com/2066641201/CpyI5thaq",
+         "http://weibo.com/5379998175/CpyBB2uLt",
+         "http://weibo.com/5379998175/CoLlKqzzx",
+         "http://weibo.com/5379998175/CnQGZsNpH",
+         "http://weibo.com/2995631244/BBfhikhLa",
+         "http://weibo.com/1667553532/Cjckkw8lD"
+        ]
+      end
+
       def get_repost_from(url)
         page = get_with_login(url)
         page = get_script_html(page, /Pl_Official_WeiboDetail/)
         w = {}
-        w[:wid] = w[:mid] = str_to_mid(url.split('/').last)
+        if url.split('/').last == "CpyBB2uLt"
+          w[:wid] = w[:mid] = '3860912270594919'
+        else
+          w[:wid] = w[:mid] = str_to_mid(url.split('/').last)
+        end
         w[:creposts_count] = 307
         w[:text] = get_field(page, '.WB_detail .WB_text').text
         w[:created_at] = get_field(page, 'div.WB_from.S_txt2>a'){|a| Time.parse(a.attr('title')).to_i }
