@@ -21,28 +21,28 @@ class Proxy
 
   def self.get_one(_location = nil)
     ret = nil
-    prxs = where(:is_deleted => false).order("last_use DESC")
-    if prxs.count < 30
-      get_from_dl
-      prxs = where(:is_deleted => false).order("last_use DESC")
-    end
-    while true
-      prxs.each do |prx|
-        next if prx.account
-        if prx.confirm
-          ret = prx
-          break
-        else
-          next
-        end
-      end
-      if ret 
-        break 
-      else   
-        get_from_dl
-        prxs = where(:is_deleted => false).order("last_use DESC")
-      end
-    end
+    # prxs = where(:is_deleted => false).order("last_use DESC")
+    # if prxs.count < 30
+    #   get_from_dl
+    #   prxs = where(:is_deleted => false).order("last_use DESC")
+    # end
+    # while true
+    #   prxs.each do |prx|
+    #     next if prx.account
+    #     if prx.confirm
+    #       ret = prx
+    #       break
+    #     else
+    #       next
+    #     end
+    #   end
+    #   if ret 
+    #     break 
+    #   else   
+    #     get_from_dl
+    #     prxs = where(:is_deleted => false).order("last_use DESC")
+    #   end
+    # end
 
     ret
   end
