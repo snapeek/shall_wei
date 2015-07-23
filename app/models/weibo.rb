@@ -70,15 +70,15 @@ class Weibo
       :group => 1,
       :ww => self.reposts.count
       }
-    make_nodes(0)
+    make_nodes(self, 0)
     {
       nodes: @nodes,
       links: @links
     }
   end
 
-  def make_nodes(i)
-    self.reposts.each do |wr|
+  def make_nodes(hwr ,i)
+    hwr.reposts.each do |wr|
       if wr.reposts.count > 0
         @nodes << {
           :name => "#{wr.user_name}(#{wr.reposts.count})",
@@ -91,7 +91,7 @@ class Weibo
           :target => target,
           :value => wr.reposts.count
         }
-        make_nodes(target)
+        make_nodes(wr, target)
       end
     end
   end
