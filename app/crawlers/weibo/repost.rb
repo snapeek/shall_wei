@@ -10,6 +10,7 @@ module WeiboUtils
         page = get_script_html(page, /Pl_Official_WeiboDetail/)
         w = {}
         w[:wid] = w[:mid] = str_to_mid(url.split('/').last)
+        w[:creposts_count] = 307
         w[:text] = get_field(page, '.WB_detail .WB_text').text
         w[:created_at] = get_field(page, 'div.WB_from.S_txt2>a'){|a| Time.parse(a.attr('title')).to_i }
         # weibo = w[:mid] ? Weibo.find_or_create_by(:mid => w[:mid]) : Weibo.new
