@@ -68,7 +68,7 @@ module WeiboUtils
       end
 
       def save_repost(w, host_weibo)
-        weibo = Weibo.where(:mid => w[:mid]).fisrt
+        weibo = Weibo.where(:mid => w[:mid]).first
         return weibo if weibo
         weibo = Weibo.create(w)
         weibo.save
