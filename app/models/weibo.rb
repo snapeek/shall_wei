@@ -81,6 +81,7 @@ class Weibo
     nodes[:children] = child.reposts.all
       .map { |e| make_nodes2(e) }
     if nodes[:children].count < child.creposts_count
+      binding.pry
       (child.creposts_count - nodes[:children].count).times do
         nodes[:children] << {
           :name => '转发微博',
