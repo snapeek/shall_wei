@@ -68,11 +68,14 @@ class Weibo
 
   def make_nodes2(child)
     nodes = {}
-    nodes[:name] = child.user_name
-    nodes[:size] = child.reposts.count
+    nodes[:name] = child.user_name || child.mid
+    nodes[:size] = child.reposts_count || child.reposts.count
+    nodes[:link] = child.reposts_url
     puts nodes
     # binding.pry
-    nodes[:children] = child.reposts.all.select{|e| e.reposts.count.to_i > 0 }.map { |e| make_nodes2(e) }
+    nodes[:children] = child.reposts.all
+      .select{|e|  e.reposts_count.to_i > 0 || e.reposts.count.to_i > 0 }
+      .map { |e| make_nodes2(e) }
     nodes
   end
 
