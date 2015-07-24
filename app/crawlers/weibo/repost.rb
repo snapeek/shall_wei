@@ -16,11 +16,13 @@ module WeiboUtils
          "http://weibo.com/1667553532/Cjckkw8lD"
         ]
         errors = []
-        begin
-          a.each {|aa| get_repost_from(aa) }
-        rescue Exception => e
-          errors << e
-        end
+        a.each {|aa| 
+          begin
+            get_repost_from(aa)
+          rescue Exception => e
+            errors << e
+          end
+        }
         errors
       end
 
