@@ -85,7 +85,8 @@ class Weibo
         nodes[:children] << {
           :name => '转发微博',
           :size22 => 0,
-          :size => 0
+          :size => 0,
+          :link => ""
         }
       end
     end
