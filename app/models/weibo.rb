@@ -62,6 +62,17 @@ class Weibo
     _data
   end
 
+  def to_json2
+    make_nodes2(self)
+  end
+
+  def make_nodes2(child)
+    nodes = {}
+    nodes[:name] = child.user_name
+    nodes[:children] = reposts.all.map { |e| make_nodes2(child) }
+    nodes
+  end
+
   def to_json
     @nodes = []
     @links = []
