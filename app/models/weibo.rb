@@ -70,6 +70,7 @@ class Weibo
     nodes = {}
     nodes[:name] = child.user_name
     nodes[:size] = child.reposts.count
+    puts nodes
     nodes[:children] = child.reposts.all.select{|e| child.reposts.count.to_i > 0 }.map { |e| make_nodes2(child) }
     nodes
   end
