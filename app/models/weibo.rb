@@ -72,7 +72,7 @@ class Weibo
     nodes[:size] = child.reposts.count
     puts nodes
     binding.pry
-    nodes[:children] = child.reposts.all.select{|e| child.reposts.count.to_i > 0 }.map { |e| make_nodes2(child) }
+    nodes[:children] = child.reposts.all.select{|e| child.reposts.count.to_i > 0 }.map { |e| make_nodes2(e) }
     nodes
   end
 
