@@ -29,7 +29,7 @@ class WeiboSpider
     # @last_use = Time.now
     @relogin_count = 0
     @cpc_count = 0
-    @delay_times = 3..14
+    @delay_times = 3..8
     @account = Account.get_one
     @username = @account.username # "gwksgujy0@sina.cn"
     @password = @account.password # "563646018505"
