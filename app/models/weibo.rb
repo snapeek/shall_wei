@@ -83,7 +83,7 @@ class Weibo
     if nodes[:children].count < child.creposts_count
       (child.creposts_count - nodes[:children].count).times do
         nodes[:children] << {
-          :name => '',
+          :name => '转发微博',
           :size22 => 1,
           :size => 1
         }
