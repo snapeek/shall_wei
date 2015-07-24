@@ -76,11 +76,22 @@ class Weibo
     nodes[:size22] = (child.reposts_count || child.reposts.count)
     nodes[:size] = (child.reposts_count || child.reposts.count)
     nodes[:link] = child.reposts_url
-    puts nodes
+    # puts nodes
     # binding.pry
     nodes[:children] = child.reposts.all
-      .select{|e| (e.reposts_count || e.reposts.count).to_i > 0 }
       .map { |e| make_nodes2(e) }
+    if nodes[:children].count < child.creposts_count
+      (child.creposts_count - nodes[:children].count).times do
+        nodes[:children] << {
+          :name => '',
+          :size22 => 1,
+          :size => 1
+        }
+      end
+    end
+    # nodes[:children] = child.reposts.all
+    #   .select{|e| (e.reposts_count || e.reposts.count).to_i > 0 }
+    #   .map { |e| make_nodes2(e) }
     nodes.delete(:children) if nodes[:children].count < 1
     nodes
   end
