@@ -73,6 +73,7 @@ class Weibo
   def make_nodes2(child)
     nodes = {}
     nodes[:name] = child.user_name || child.mid
+    nodes[:size22] = (child.reposts_count || child.reposts.count)
     nodes[:size] = (child.reposts_count || child.reposts.count)
     nodes[:link] = child.reposts_url
     puts nodes
@@ -80,6 +81,7 @@ class Weibo
     nodes[:children] = child.reposts.all
       .select{|e| (e.reposts_count || e.reposts.count).to_i > 0 }
       .map { |e| make_nodes2(e) }
+    nodes.delete(:children) if nodes[:children].count < 1
     nodes
   end
 
