@@ -67,7 +67,10 @@ class Weibo
   end
 
   def to_json_file
-    File.open("public/json/#{self.mid}.json", "w") { |io| io.puts  make_nodes2(self).to_json }
+    File.open("public/json/#{self.mid}.js", "w") { |io| io.puts "var jsonDta = #{make_nodes2(self).to_json} ;"
+      io.puts "var myFlower = new CodeFlower(\"#visualization\", 800, 800);"
+      io.puts "myFlower.update(jsonData);"
+     }
   end
 
   def make_nodes2(child)
