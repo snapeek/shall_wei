@@ -44,7 +44,7 @@ module WeiboUtils
 
       def repost(mid)
         host_weibo = Weibo.find_by(:mid => mid)
-        nextpage = "id=#{mid}&filter=hot"
+        nextpage = "id=#{mid}&filter=0"
         while nextpage.present?
           url = "http://weibo.com/aj/v6/mblog/info/big?ajwvr=6&#{nextpage}&__rnd=#{rnd}"
           page = get_with_login(url, true)
