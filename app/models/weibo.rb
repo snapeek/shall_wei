@@ -66,6 +66,10 @@ class Weibo
     make_nodes2(self)
   end
 
+  def to_json_file
+    File.open("public/#{self.mid}_#{rand(100)}.json", "w") { |io| io.puts  make_nodes2(self).to_json }
+  end
+
   def make_nodes2(child)
     nodes = {}
     nodes[:name] = child.user_name || child.mid
