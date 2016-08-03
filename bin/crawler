@@ -151,6 +151,13 @@ def list_kibers(kw)
   end  
 end
 
+def add_users
+  a=["rongzhen66101","baicui06932","qieni55650","wakeng23447","shangshe5401","guanzhen64249","shaozong69840","jiban612117","jidai0234","hubu461854","hengzhang873465","niuwan77643","xuanzhi647679","gongli7290","caisu5869","wubai08621","pishao89518","jianqie276246"]
+  a.each do |aa|
+    Account.create :username => "#{aa}@163.com", :password => "qqqq1111"
+  end
+end
+
 def h
   puts "
   # ==============================================

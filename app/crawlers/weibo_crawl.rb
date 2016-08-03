@@ -62,7 +62,7 @@ class WeiboCrawl
     # $logger ||= Logger.new("log/weibo_crawl.log", 'daily')
     @logger = $logger
     @broken_paths = []
-    @delay_times = 2..5
+    @delay_times = 1..2
     @weibos_spiders = []
     1.times { add_spider }
     @retry_time = 0

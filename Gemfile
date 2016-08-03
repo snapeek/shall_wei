@@ -1,9 +1,9 @@
-source 'http://ruby.taobao.org/'
-ruby '2.1.5'
+source 'https://ruby.taobao.org/'
 gem "mongoid"
 gem 'high_voltage'
 gem 'mechanize'
 gem 'pry'
+gem 'activesupport'
 gem 'pry-rescue'
 gem 'sidekiq'
 gem 'rails', '4.1.1'

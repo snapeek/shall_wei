@@ -7,6 +7,7 @@ class CaptchasController < ApplicationController
   # GET /captchas
   # GET /captchas.json
   def index
+    # binding.pry
     @captchas = Captcha.where(:is_correct => nil)
   end
 

@@ -73,21 +73,21 @@ module WeiboUtils
     end
 
     def ensure_not_captcha_page(page)
-      captcha_pice = get_script_html(page, 'pl_common_sassfilter')
-      captcha_pice = get_field(page, '#pl_common_sassfilter') unless captcha_pice.present?
-      if captcha_pice.present?
-        cap = save_x_captcha
-        page_uri = page.uri.to_s
-        ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
-        ret = JSON.parse(ret.body)
-        if ret["code"] == "100000"
-          cap.update_attribute(:is_correct, true)
-          return tget(page_uri)
-        else
-          cap.update_attribute(:is_correct, false)
-          return ensure_not_captcha_page(page)
-        end
-      end
+      # captcha_pice = get_script_html(page, 'pl_common_sassfilter')
+      # captcha_pice = get_field(page, '#pl_common_sassfilter') unless captcha_pice.present?
+      # if captcha_pice.present?
+      #   cap = save_x_captcha
+      #   page_uri = page.uri.to_s
+      #   ret = @weibos_spider.post("http://s.weibo.com/ajax/pincode/verified?__rnd=#{rnd}", {secode: @x_captcha, type: 'sass', pageid: 'weibo' })
+      #   ret = JSON.parse(ret.body)
+      #   if ret["code"] == "100000"
+      #     cap.update_attribute(:is_correct, true)
+      #     return tget(page_uri)
+      #   else
+      #     cap.update_attribute(:is_correct, false)
+      #     return ensure_not_captcha_page(page)
+      #   end
+      # end
       page
     end
 

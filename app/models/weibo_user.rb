@@ -49,7 +49,7 @@ class WeiboUser
   scope :brands, ->{ where(:verified_type => 1) }
   scope :medias, ->{ where(:verified_type => 2) }
 
-  index({ wid: 1 }, { unique: true })
+  # index({ wid: 1 }, { unique: true })
 
   def self.group_by_location
     criteria.group_by{|a| a.location.to_s.split(' ')[0]}
@@ -85,6 +85,19 @@ class WeiboUser
       end 
     end 
   end  
+
+  def self.bm_to_csv
+    CSV.open("tmp/csv/微博认证.csv", "wb") do |csv|
+      csv << ["用户名", "ID", ]
+      wbus = []
+      criteria.each do |w|
+        next if wbus.include? w.wid
+        wbus << w.wid
+        csv << [w.name, w.wid]
+      end 
+    end 
+  end
+
 
   def self.group_by_location_count
     ac = where(:location => /[\d\D]+/).count

@@ -19,7 +19,7 @@ class Account
 
   scope :can_used, ->{ where(:on_crawl => false)}
 
-  index({ username: 1, password: 1, last_use: 1})
+  # index({ username: 1, password: 1, last_use: 1})
 
   def self.get_one
     self.clear
