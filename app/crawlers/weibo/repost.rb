@@ -42,6 +42,7 @@ module WeiboUtils
         page = get_script_html(page, /Pl_Official_WeiboDetail/)
         w = {}
         w[:wid] = w[:mid] = str_to_mid(url.split('/').last)
+        w[:wid] = w[:mid] = get_field(page, ".WB_cardwrap"){|a| a.attr('mid')}
         w[:user_name] = get_field(page, '.WB_info .S_txt1').text
         w[:text] = get_field(page, '.WB_detail .WB_text').text
         w[:created_at] = get_field(page, 'div.WB_from.S_txt2>a'){|a| Time.parse(a.attr('title')).to_i }
