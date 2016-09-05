@@ -73,7 +73,7 @@ class Weibo
 
   def to_json_file
     File.open("public/json/#{self.tag}_#{self.id.to_s}_全部.js", "w") { |io| io.puts "var jsonData = #{make_nodes2(self).to_json} ;"
-      io.puts "var myFlower = new CodeFlower(\"#visualization\", 1200, 1200);"
+      io.puts "var myFlower = new CodeFlower(\"#visualization\", 4200, 4200);"
       io.puts "myFlower.update(jsonData);"
      }
   end
